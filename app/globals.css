@@ -1,0 +1,43 @@
+/* Importa il framework CSS Tailwind per utilizzare le sue classi di utilità */
+@import "tailwindcss";
+
+/* Definizione delle variabili CSS personalizzate globali nella pseudo-classe :root */
+:root {
+  /* Colore di sfondo predefinito: bianco */
+  --background: #ffffff;
+  /* Colore del testo predefinito: nero scuro */
+  --foreground: #171717;
+}
+
+/* Blocco @theme inline di Tailwind CSS v4: mappa le variabili CSS ai token del tema Tailwind */
+@theme inline {
+  /* Associa il colore di sfondo di Tailwind alla variabile --background */
+  --color-background: var(--background);
+  /* Associa il colore di primo piano di Tailwind alla variabile --foreground */
+  --color-foreground: var(--foreground);
+  /* Associa il font sans-serif di Tailwind al font Geist Sans caricato da Google Fonts */
+  --font-sans: var(--font-geist-sans);
+  /* Associa il font monospace di Tailwind al font Geist Mono caricato da Google Fonts */
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Media query per la modalità scura: si attiva quando il sistema operativo dell'utente preferisce il tema scuro */
+@media (prefers-color-scheme: dark) {
+  /* Sovrascrive le variabili :root con i colori per il tema scuro */
+  :root {
+    /* Colore di sfondo scuro: nero quasi totale */
+    --background: #0a0a0a;
+    /* Colore del testo chiaro: grigio chiaro */
+    --foreground: #ededed;
+  }
+}
+
+/* Stili base applicati all'elemento <body> dell'intera applicazione */
+body {
+  /* Imposta il colore di sfondo del body usando la variabile CSS --background */
+  background: var(--background);
+  /* Imposta il colore del testo del body usando la variabile CSS --foreground */
+  color: var(--foreground);
+  /* Definisce la famiglia di font di fallback: Arial, Helvetica, sans-serif */
+  font-family: Arial, Helvetica, sans-serif;
+}

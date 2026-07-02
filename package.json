@@ -1,0 +1,36 @@
+{
+  "name": "nextjs-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "init-db": "node app/scripts/init-db.js"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.6.2",
+    "next": "16.1.5",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "use-debounce": "^10.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.5",
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
+}
