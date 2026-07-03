@@ -5,130 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f8d52026-aa37-4cbd-9452-781e8bfcb9a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.hintrc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(pubblica)/chi-siamo/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(pubblica)/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(pubblica)/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/elimina-account/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/esercizi/[id]/feedback/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/esercizi/[id]/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/esercizi/assign/[id]/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/esercizi/assign/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/esercizi/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/feedback/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/lista-pazienti/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/login/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/logout/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/materiali-pubblici/[id]/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/materiali-pubblici/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/profilo/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/progressi/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/registrazione/route.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/dashboard/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/dashboard/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/data/init-db.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/lib/actions.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/lib/activities.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/lib/mongodb.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/lib/patients.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/lib/utils.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/login/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/login/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/crea/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/imieimateriali/[id]/assegna/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/imieimateriali/[id]/modifica/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/imieimateriali/[id]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/imieimateriali/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/lista-pazienti/accoppiamento-paziente/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/lista-pazienti/dettaglio-paziente/[cf]/esercizio/[id]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/lista-pazienti/dettaglio-paziente/[cf]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/lista-pazienti/feedback/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/lista-pazienti/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/ricerca-materiali/[id]/assegna/AssignToPatient.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/ricerca-materiali/[id]/assegna/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/ricerca-materiali/[id]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/logopedista/ricerca-materiali/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/Attivita.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/Esercizio.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/Logopedista.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/Paziente.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/paziente/esercizi/[id]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/paziente/esercizi/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/paziente/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/paziente/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/paziente/progressi/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/profilo/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/profilo/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/registrazione/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/registrazione/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/scelta-utente/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/scelta-utente/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/scripts/init-db.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/fonts.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/image-modal.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/buttons.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/comment-section.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-accessibility.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-age.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-description.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-header.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-material.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-objective.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-pathology.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-save-button.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/create-title.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/dashboard-list.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/delete-button.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/detail-image-viewer.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/edit-form.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/favorite-heart.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/filters-age.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/filters-pathology.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/filters-section.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/materials-list.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/materials-search.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/materials-tabs.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/pagination.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/patients-to-follow.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/paziente-esercizi.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/pazienti-table.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/recent-exercises.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/search.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/stats-overview.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/unassign-button.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/logopedista/unassignActivity-button.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/completion-progress.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/dashboard-stats.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/exercises-list-wrapper.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/exercises-list.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/exercises-search.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/exercises-tabs.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/paziente/next-exercise-card.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/pubblica/carosello.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/pubblica/nav-links.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/ui/pubblica/sidenav.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eslint.config.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-workspace.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/postcss.config.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/file.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/globe.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/logopedista.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/next.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/paziente.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/paziente1.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/vercel.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/window.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,9 +31,9 @@
     <commands />
     <urls />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="3FzBPuPNmtdjWlM16AcI5TVcrKN" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -178,7 +55,7 @@
     "Spring Boot.ServiceUtentiApplication.executor": "Run",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feature-tommaso",
+    "git-widget-placeholder": "feature-alessio",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
@@ -189,7 +66,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "C:\\Users\\tomma\\EVOLUZIONE\\LogSpot-Microservizi\\LogSpot-Platform\\frontend\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\EvoluzioneSoftware\\LogSpot---Microservizi\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
