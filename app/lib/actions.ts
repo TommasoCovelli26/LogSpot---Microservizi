@@ -515,3 +515,25 @@ export async function deleteComment(commentId: number) {
     return { success: false, message: 'Errore eliminazione' };
   }
 }
+
+export async function deletePatient(id: string) {
+  const userId = await getUserId();
+  if (!userId) return { success: false, message: 'Non autorizzato' };
+
+  try {
+    // 1. Elimina il paziente cercando per Codice Fiscale (cf)
+    const result = await Paziente.deleteOne({ cf: id });
+
+    if (result.deletedCount === 0) {
+      return { success: false, message: 'Paziente non trovato' };
+    }
+
+    // 2. Aggiorna la pagina
+    revalidatePath('/logopedista/lista-pazienti');
+    return { success: true };
+
+  } catch (error) {
+    console.error('Errore eliminazione paziente:', error);
+    return { success: false, message: 'Errore interno del server' };
+  }
+}

@@ -69,3 +69,38 @@ export function truncate(text: string, length: number = 50): string {
   // Altrimenti taglia il testo alla lunghezza specificata e aggiunge i puntini di sospensione
   return text.substring(0, length) + '...';
 }
+
+/**
+ * Genera i token di paginazione con eventuali ellissi per una navigazione compatta.
+ * Esempi: [1,2,3], [1,'...',8,9,10], [1,2,3,'...',10]
+ * @param currentPage - Pagina corrente
+ * @param totalPages - Numero totale di pagine
+ * @returns Array di numeri pagina e separatori ellissi
+ */
+export function generatePagination(currentPage: number, totalPages: number): Array<number | string> {
+  // Se il numero totale è piccolo, mostra tutte le pagine.
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  // Se siamo all'inizio, mostra le prime pagine e poi ellissi + ultima.
+  if (currentPage <= 3) {
+    return [1, 2, 3, '...', totalPages - 1, totalPages];
+  }
+
+  // Se siamo verso la fine, mostra prima + ellissi + ultime pagine.
+  if (currentPage >= totalPages - 2) {
+    return [1, 2, '...', totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  // Caso centrale: prima, ellissi, pagina corrente con vicine, ellissi, ultima.
+  return [
+    1,
+    '...',
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    '...',
+    totalPages,
+  ];
+}

@@ -1,5 +1,5 @@
-# Usa un'immagine di Node.js ottimizzata (versione 18, ottima per Next.js)
-FROM node:18-alpine AS base
+# Usa un'immagine di Node.js ottimizzata (versione 20, ottima per Next.js)
+FROM node:20-alpine AS base
 
 # Abilita pnpm, visto che il vostro progetto lo utilizza
 ENV PNPM_HOME="/pnpm"

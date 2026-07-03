@@ -1,6 +1,8 @@
 // Direttiva Next.js: indica che questo è un componente client-side (necessario per useState, useEffect, useSearchParams)
 "use client";
 
+// Importa Suspense per il boundary richiesto da Next.js con useSearchParams
+import { Suspense } from 'react';
 // Importa gli hook useState e useEffect da React per gestire stato locale e side-effects
 import { useState, useEffect } from "react";
 // Importa gli hook useRouter e useSearchParams da Next.js per navigazione e lettura parametri URL
@@ -13,7 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
  * Alla sottomissione, invia i dati all'API /api/registrazione e reindirizza al login.
  * Corrisponde alla route '/registrazione?ruolo=logopedista|paziente'.
  */
-export default function RegistrazionePage() {
+function RegistrazionePageContent() {
   // Hook per la navigazione programmatica (redirect dopo registrazione)
   const router = useRouter();
   // Hook per leggere i parametri dalla query string dell'URL
@@ -133,6 +135,14 @@ export default function RegistrazionePage() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function RegistrazionePage() {
+  return (
+    <Suspense fallback={<div style={{ maxWidth: '450px', margin: '60px auto', padding: '2rem' }}>Caricamento...</div>}>
+      <RegistrazionePageContent />
+    </Suspense>
   );
 }
 

@@ -3,7 +3,7 @@ import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 // Importa il componente Link per la navigazione client-side
 import Link from 'next/link';
 // Importa la Server Action per eliminare un paziente
-import { deletePatient } from '@/app/lib/actions';
+import { deletePatient } from '@/lib/actions';
 
 /**
  * Componente pulsante per creare un nuovo paziente.
@@ -47,14 +47,14 @@ export function UpdatePatient({ id }: { id: string }) {
  * @param id - Identificatore univoco del paziente da eliminare
  */
 export function DeletePatient({ id }: { id: string }) {
-  // Collega l'id del paziente alla Server Action tramite bind
-  const deletePatientWithId = deletePatient.bind(null, id);
+  // Avvolgiamo la chiamata in una funzione async che non fa il "return" dell'oggetto
+  const handleDelete = async () => {
+    await deletePatient(id);
+  };
+
   return (
-    // Form con action server-side per l'eliminazione
-    <form action={deletePatientWithId}>
-      {/* Pulsante submit con icona cestino */}
+    <form action={handleDelete}>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
-        {/* Testo accessibile solo per screen reader */}
         <span className="sr-only">Elimina</span>
         <TrashIcon className="w-5" />
       </button>

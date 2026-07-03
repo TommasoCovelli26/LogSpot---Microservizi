@@ -17,8 +17,8 @@ import clsx from 'clsx';
 import { lusitana } from '../fonts';
 // Importazione della Server Action per aggiungere/rimuovere dai preferiti
 import { toggleFavorite } from '../../lib/actions'; // Importiamo la server action
-// Importazione del tipo ActivityWithFavorite dalla pagina dei materiali
-import { ActivityWithFavorite } from '../../logopedista/imieimateriali/page';
+// Importazione del tipo ActivityWithFavorite dalle utility condivise
+import type { ActivityWithFavorite } from '../../lib/activities';
 
 /**
  * Componente lista dashboard del logopedista.

@@ -125,6 +125,14 @@ async function initDB() {
             password: 'password123',
             logopedista: logoIds[randomInt(0, 99)] // Assegnato a un logopedista esistente
         }));
+        const pazientiPerLogopedista = pazienti.reduce((acc, paziente) => {
+            const key = paziente.logopedista.toString();
+            if (!acc.has(key)) {
+                acc.set(key, []);
+            }
+            acc.get(key).push(paziente._id);
+            return acc;
+        }, new Map());
         await Paziente.insertMany(pazienti);
         console.log('✓ Inseriti 300 Pazienti');
 
@@ -158,6 +166,11 @@ async function initDB() {
 
         const esercizi = Array.from({ length: 500 }, () => {
             let feedback = undefined;
+            const logopedista = logoIds[randomInt(0, 99)];
+            const pazientiDelLogopedista = pazientiPerLogopedista.get(logopedista.toString()) || [];
+            const paziente = pazientiDelLogopedista.length > 0
+                ? randomEl(pazientiDelLogopedista)
+                : pazIds[randomInt(0, 299)];
             
             // Aggiungiamo un feedback solo finché ne abbiamo a disposizione (esattamente 250)
             if (feedbackDisponibili > 0) {
@@ -173,8 +186,8 @@ async function initDB() {
                 statoCompletamento: randomEl(stati),
                 durata: randomInt(15, 45), // tra 15 e 45 minuti
                 attivita: attIds[randomInt(0, 199)],
-                logopedista: logoIds[randomInt(0, 99)],
-                paziente: pazIds[randomInt(0, 299)],
+                logopedista: logopedista,
+                paziente: paziente,
                 feedback: feedback
             };
         });
