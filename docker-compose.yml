@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  logspot-web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: logspot_web_local
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production # Simula l'ambiente di produzione
+      
+      # [ATTENZIONE]: Sostituite questo URI con la reale stringa di connessione 
+      # al MongoDB (es. MongoDB Atlas) che Tommaso ha configurato.
+      # Se c'è una password speciale o caratteri nel DB, ricordate di passarli corretti.
+      - MONGODB_URI=mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
+      
+      # Eventuali altre variabili d'ambiente (es. JWT_SECRET, ecc.)
+      # - JWT_SECRET=il_vostro_segreto_per_i_token

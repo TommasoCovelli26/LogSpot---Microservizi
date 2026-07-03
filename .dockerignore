@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.hintrc
+README.md
+Dockerfile
+docker-compose.yml
+.env*.local
+# Ignora i file env reali, Docker userà le variabili d'ambiente passate da compose/Azure
