@@ -1,6 +1,8 @@
 // Direttiva Next.js: indica che questo è un componente client-side
 "use client";
 
+// Importa Suspense per il boundary richiesto quando si usa useSearchParams
+import { Suspense } from 'react';
 // Importa gli hook React: useEffect per side-effects, useMemo per memoizzazione, useState per lo stato
 import { useEffect, useMemo, useState } from 'react';
 // Importa il componente tabs per filtrare i materiali (Recenti / Preferiti)
@@ -24,7 +26,7 @@ import type { ActivityWithFavorite } from '../../lib/activities';
  * con filtri per età, patologie, ricerca testuale e tabs (recenti/preferiti).
  * Corrisponde alla route '/logopedista/ricerca-materiali'.
  */
-export default function Page() {
+function PageContent() {
   // Hook per la navigazione programmatica
   const router = useRouter();
   // Hook per leggere i parametri della query string nell'URL
@@ -183,5 +185,13 @@ export default function Page() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="text-center py-10 text-gray-500">Caricamento pagina...</div>}>
+      <PageContent />
+    </Suspense>
   );
 }

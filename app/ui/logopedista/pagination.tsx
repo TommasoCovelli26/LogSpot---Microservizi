@@ -8,7 +8,7 @@ import clsx from 'clsx';
 // Importazione del componente Link di Next.js per la navigazione
 import Link from 'next/link';
 // Importazione della funzione helper per generare i numeri di pagina
-import { generatePagination } from '@/app/lib/utils';
+import { generatePagination } from '@/lib/utils';
 // Importazione degli hook di Next.js per pathname e parametri URL
 import { usePathname, useSearchParams } from 'next/navigation';
 

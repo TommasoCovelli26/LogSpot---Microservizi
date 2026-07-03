@@ -11,10 +11,10 @@ import { fetchActivityById } from '@/lib/activities';
  */
 export async function GET(
   _req: Request,  // Richiesta non utilizzata (prefisso _ indica parametro ignored)
-  { params }: { params: { id: string } }  // Parametri dinamici dell'URL (id dell'attività)
+  { params }: { params: Promise<{ id: string }> }  // Parametri dinamici dell'URL (id dell'attività)
 ) {
   // Estrae l'id dell'attività dai parametri dinamici della route
-  const { id } = params;
+  const { id } = await params;
 
   try {
     // Chiama la funzione fetchActivityById per recuperare l'attività dal database
