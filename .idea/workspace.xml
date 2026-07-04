@@ -14,6 +14,7 @@
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
+      <entry key="_C:/EvoluzioneSoftware/LogSpot---Microservizi" value="3G207ctKKChwL0SF8vgWrGOaNNl" />
       <entry key="_C:/Users/tomma/EVOLUZIONE/LogSpot-Microservizi" value="3FzBPuPNmtdjWlM16AcI5TVcrKN" />
     </persistenceIdMap>
   </component>
@@ -53,10 +54,14 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ServiceUtentiApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "feature-alessio",
     "ignore.virus.scanning.warn.message": "true",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/tomma/EVOLUZIONE/LogSpot-Microservizi",
@@ -70,7 +75,10 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="npm.Next.js: server-side">
+    <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
+      <method v="2" />
+    </configuration>
     <configuration name="ServiceUtentiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
         <env name="SERVER_PORT" value="8081" />
@@ -81,6 +89,16 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="Next.js: server-side" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
     </configuration>
   </component>
   <component name="SharedIndexes">
@@ -99,6 +117,7 @@
       <option name="presentableId" value="Default" />
       <updated>1783067996886</updated>
       <workItem from="1783067997929" duration="4827000" />
+      <workItem from="1783154193839" duration="583000" />
     </task>
     <servers />
   </component>
