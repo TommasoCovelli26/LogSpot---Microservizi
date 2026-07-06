@@ -8,6 +8,8 @@ import it.logspot.userservice.repository.LogopedistaRepository;
 import it.logspot.userservice.repository.PazienteRepository;
 import org.springframework.stereotype.Service;
 import it.logspot.userservice.exception.UserNotFoundException;
+import it.logspot.userservice.entity.Preferito;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -93,6 +95,101 @@ public class UserService {
         }
 
         throw new UserNotFoundException("Ruolo non valido");
+
+    }
+
+    public void deleteLogopedista(String id){
+
+        Logopedista logopedista = logopedistaRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Logopedista non trovato"));
+
+        logopedistaRepository.delete(logopedista);
+
+    }
+
+    public void deletePaziente(String id){
+
+        Paziente paziente = pazienteRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Paziente non trovato"));
+
+        pazienteRepository.delete(paziente);
+
+    }
+
+    public List<Preferito> getPreferiti(String logopedistaId){
+
+        Logopedista logopedista = logopedistaRepository.findById(logopedistaId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Logopedista non trovato"));
+
+        return logopedista.getPreferiti();
+
+    }
+
+    public void addPreferito(String logopedistaId,
+                             String attivitaId){
+
+        Logopedista logopedista = logopedistaRepository.findById(logopedistaId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Logopedista non trovato"));
+
+        boolean presente = logopedista.getPreferiti()
+                .stream()
+                .anyMatch(p -> p.getAttivita().equals(attivitaId));
+
+        if(!presente){
+
+            Preferito preferito = new Preferito();
+
+            preferito.setAttivita(attivitaId);
+            preferito.setDataSalvataggio(LocalDateTime.now());
+
+            logopedista.getPreferiti().add(preferito);
+
+            logopedistaRepository.save(logopedista);
+
+        }
+
+    }
+
+    public void removePreferito(String logopedistaId,
+                                String attivitaId){
+
+        Logopedista logopedista = logopedistaRepository.findById(logopedistaId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Logopedista non trovato"));
+
+        logopedista.getPreferiti()
+                .removeIf(p -> p.getAttivita().equals(attivitaId));
+
+        logopedistaRepository.save(logopedista);
+
+    }
+
+    public void assignPatient(String pazienteId,
+                              String logopedistaId){
+
+        Paziente paziente = pazienteRepository.findById(pazienteId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Paziente non trovato"));
+
+        paziente.setLogopedista(logopedistaId);
+
+        pazienteRepository.save(paziente);
+
+    }
+
+    public void unassignPatient(String pazienteId){
+
+        Paziente paziente = pazienteRepository.findById(pazienteId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Paziente non trovato"));
+
+        paziente.setLogopedista(null);
+
+        pazienteRepository.save(paziente);
 
     }
 

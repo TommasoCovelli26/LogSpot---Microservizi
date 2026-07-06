@@ -247,4 +247,24 @@ public class CatalogService {
 
     }
 
+    public List<AttivitaResponse> getByPatologia(String patologia){
+
+        return repository
+                .findByPatologieContainingIgnoreCase(patologia)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+
+    }
+
+    public List<AttivitaResponse> getByAccessibilita(Boolean accessibilita){
+
+        return repository
+                .findByAccessibilita(accessibilita)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+
+    }
+
 }

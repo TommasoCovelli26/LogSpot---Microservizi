@@ -1,6 +1,6 @@
 package it.logspot.therapyservice.repository;
 
-import it.logspot.therapyservice.model.Esercizio;
+import it.logspot.therapyservice.entity.Esercizio;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import it.logspot.userservice.security.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
+import it.logspot.userservice.entity.Preferito;
+import it.logspot.userservice.dto.AssignPatientRequest;
 
 import jakarta.validation.Valid;
 
@@ -70,22 +72,95 @@ public class UserController {
 
     }
 
-    //@GetMapping("/me")
-    //public ResponseEntity<UserResponse> me() {
-//
-      //  CustomUserDetails user =
-       //         (CustomUserDetails) SecurityContextHolder
-        //                .getContext()
-        //                .getAuthentication()
-        //                .getPrincipal();
-//
-        //return ResponseEntity.ok(
-        //        userService.getUserById(
-        //                user.getId(),
-         //               user.getRole()
-           //     )
-       // );
+    @DeleteMapping("/logopedista/{id}")
+    public ResponseEntity<Void> deleteLogopedista(
+            @PathVariable String id){
 
-    //}
+        userService.deleteLogopedista(id);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @DeleteMapping("/paziente/{id}")
+    public ResponseEntity<Void> deletePaziente(
+            @PathVariable String id){
+
+        userService.deletePaziente(id);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> me() {
+
+        CustomUserDetails user =
+                (CustomUserDetails) SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getPrincipal();
+
+        return ResponseEntity.ok(
+                userService.getUserById(
+                        user.getId(),
+                        user.getRole()
+                )
+        );
+
+    }
+
+    @GetMapping("/logopedista/{id}/preferiti")
+    public ResponseEntity<List<Preferito>> getPreferiti(
+            @PathVariable String id){
+
+        return ResponseEntity.ok(
+                userService.getPreferiti(id)
+        );
+
+    }
+
+    @PostMapping("/logopedista/{id}/preferiti/{attivitaId}")
+    public ResponseEntity<Void> addPreferito(
+            @PathVariable String id,
+            @PathVariable String attivitaId){
+
+        userService.addPreferito(id, attivitaId);
+
+        return ResponseEntity.ok().build();
+
+    }
+
+    @DeleteMapping("/logopedista/{id}/preferiti/{attivitaId}")
+    public ResponseEntity<Void> removePreferito(
+            @PathVariable String id,
+            @PathVariable String attivitaId){
+
+        userService.removePreferito(id, attivitaId);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @PutMapping("/paziente/{id}/logopedista")
+    public ResponseEntity<Void> assignPatient(
+            @PathVariable String id,
+            @Valid @RequestBody AssignPatientRequest request){
+
+        userService.assignPatient(id, request.getLogopedistaId());
+
+        return ResponseEntity.ok().build();
+
+    }
+
+    @DeleteMapping("/paziente/{id}/logopedista")
+    public ResponseEntity<Void> unassignPatient(
+            @PathVariable String id){
+
+        userService.unassignPatient(id);
+
+        return ResponseEntity.noContent().build();
+
+    }
 
 }

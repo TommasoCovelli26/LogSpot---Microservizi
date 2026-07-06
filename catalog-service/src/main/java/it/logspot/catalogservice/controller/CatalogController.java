@@ -172,5 +172,25 @@ public class CatalogController {
 
     }
 
+    @GetMapping("/patologia/{patologia}")
+    public ResponseEntity<List<AttivitaResponse>> getByPatologia(
+            @PathVariable String patologia){
+
+        return ResponseEntity.ok(
+                service.getByPatologia(patologia)
+        );
+
+    }
+
+    @GetMapping("/accessibilita/{accessibilita}")
+    public ResponseEntity<List<AttivitaResponse>> getByAccessibilita(
+            @PathVariable Boolean accessibilita){
+
+        return ResponseEntity.ok(
+                service.getByAccessibilita(accessibilita)
+        );
+
+    }
+
 
 }
