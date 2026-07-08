@@ -20,6 +20,8 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     restart: unless-stopped
     networks:
       - logspot-network
@@ -32,6 +34,12 @@ services:
       - "8081:8081"
     depends_on:
       - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      # Connessione al vostro MongoDB Atlas in Cloud
+      SPRING_DATA_MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
+      # Stringa di Azure Service Bus
+      SPRING_CLOUD_AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
     restart: unless-stopped
     networks:
       - logspot-network
@@ -44,6 +52,10 @@ services:
       - "8082:8082"
     depends_on:
       - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
+      SPRING_CLOUD_AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
     restart: unless-stopped
     networks:
       - logspot-network
@@ -56,6 +68,10 @@ services:
       - "8083:8083"
     depends_on:
       - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
+      SPRING_CLOUD_AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
     restart: unless-stopped
     networks:
       - logspot-network
@@ -70,7 +86,10 @@ services:
     environment:
       PORT: 3000
       NODE_ENV: production
+      # Il frontend non usa più Mongoose, ma manteniamo la variabile nel caso serva a vecchi script
       MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
+      # Indirizzo del Gateway interno alla rete Docker per le API (Fondamentale)
+      GATEWAY_URL: http://gateway-service:8080
     depends_on:
       - gateway-service
     restart: unless-stopped

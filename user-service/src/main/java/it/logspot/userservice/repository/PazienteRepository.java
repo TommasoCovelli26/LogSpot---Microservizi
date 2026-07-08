@@ -20,4 +20,6 @@ public interface PazienteRepository extends MongoRepository<Paziente, String> {
 
     List<Paziente> findByLogopedista(String logopedista);
 
+    List<Paziente> findByLogopedistaIsNull();
+
 }

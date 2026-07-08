@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import it.logspot.userservice.mapper.UserMapper;
+import org.springframework.jms.core.JmsTemplate; // IMPORTANTE
 
 @Service
 public class UserService {
@@ -21,14 +22,17 @@ public class UserService {
     private final LogopedistaRepository logopedistaRepository;
     private final PazienteRepository pazienteRepository;
     private final UserMapper mapper;
+    private final JmsTemplate jmsTemplate;
 
     public UserService(LogopedistaRepository logopedistaRepository,
                        PazienteRepository pazienteRepository,
-                       UserMapper mapper) {
+                       UserMapper mapper,
+                       JmsTemplate jmsTemplate) {
 
         this.logopedistaRepository = logopedistaRepository;
         this.pazienteRepository = pazienteRepository;
         this.mapper = mapper;
+        this.jmsTemplate = jmsTemplate;
 
     }
 
@@ -56,6 +60,13 @@ public class UserService {
                 .map(mapper::toUserResponse)
                 .toList();
 
+    }
+
+    public List<UserResponse> getUnassignedPazienti() {
+        return pazienteRepository.findByLogopedistaIsNull()
+                .stream()
+                .map(mapper::toUserResponse)
+                .toList();
     }
 
     public void updateLogopedista(String id, UpdateUserRequest request){
@@ -115,6 +126,12 @@ public class UserService {
                         new UserNotFoundException("Paziente non trovato"));
 
         pazienteRepository.delete(paziente);
+
+        System.out.println("Paziente rimosso dal DB Users.");
+
+        // Invia il messaggio ad Azure
+        jmsTemplate.convertAndSend("logspot-events", "PATIENT_DELETED:" + id);
+        System.out.println("📣 Evento PATIENT_DELETED inviato ad Azure!");
 
     }
 

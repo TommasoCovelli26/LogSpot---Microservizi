@@ -84,6 +84,11 @@ public class TherapyService {
 
     }
 
+    public void deleteExercisesByPaziente(String pazienteId) {
+        repository.deleteByPaziente(pazienteId);
+        System.out.println("Eliminazione a cascata completata: Esercizi rimossi per il paziente " + pazienteId);
+    }
+    
     public void deleteExercise(String id){
 
         Esercizio esercizio = repository.findById(id)

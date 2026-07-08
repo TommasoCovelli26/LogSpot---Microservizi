@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/mongodb";
-import Logopedista from "@/models/Logopedista";
-import Paziente from "@/models/Paziente";
+import { apiPost } from "../../../lib/http/client";
+import { GATEWAY_URL } from "../../../lib/config/services"; // Assicurati che GATEWAY_URL sia esportato in services.ts
 
-/**
- * Handler POST per l'endpoint /api/registrazione
- * Gestisce la registrazione di nuovi utenti (logopedisti e pazienti).
- * Verifica che tutti i campi siano compilati e che l'email non sia già in uso.
- */
 export async function POST(req: Request) {
   try {
-    await connectToDatabase();
-
     const {
       ruolo,
       nome,
@@ -23,66 +15,36 @@ export async function POST(req: Request) {
       codice,
     } = await req.json();
 
-    if (
-      !ruolo ||
-      !nome ||
-      !cognome ||
-      !dataNascita ||
-      !numTelefono ||
-      !email ||
-      !password ||
-      !codice
-    ) {
+    // Validazione iniziale
+    if (!ruolo || !nome || !cognome || !dataNascita || !numTelefono || !email || !password || !codice) {
       return NextResponse.json(
         { error: "Tutti i campi sono obbligatori" },
         { status: 400 }
       );
     }
 
-    const existingUser = await Promise.all([
-      Logopedista.findOne({ email }).select("_id").lean(),
-      Paziente.findOne({ email }).select("_id").lean(),
-    ]);
+    // Costruiamo il payload in base al ruolo.
+    // L'AuthController in Java si aspetta pIva per il logopedista e cf per il paziente.
+    const payload = ruolo === "logopedista" 
+      ? { pIva: codice, nome, cognome, dataNascita, numTelefono, email, password }
+      : { cf: codice, nome, cognome, dataNascita, numTelefono, email, password };
 
-    if (existingUser[0] || existingUser[1]) {
-      return NextResponse.json(
-        { error: "Email già registrata" },
-        { status: 409 }
-      );
-    }
+    // Determiniamo l'endpoint del Gateway (basandoci sulle tue rotte in application.properties)
+    const endpoint = ruolo === "logopedista"
+      ? `${GATEWAY_URL}/api/auth/register/logopedista`
+      : `${GATEWAY_URL}/api/auth/register/paziente`;
 
-    if (ruolo === "logopedista") {
-      await Logopedista.create({
-        pIva: codice,
-        nome,
-        cognome,
-        dataNascita: dataNascita || null,
-        numTelefono: numTelefono || null,
-        email,
-        password,
-      });
-    } else if (ruolo === "paziente") {
-      await Paziente.create({
-        cf: codice,
-        nome,
-        cognome,
-        dataNascita: dataNascita || null,
-        numTelefono: numTelefono || null,
-        email,
-        password,
-      });
-    } else {
-      return NextResponse.json(
-        { error: "Ruolo non valido" },
-        { status: 400 }
-      );
-    }
+    // Effettuiamo la chiamata al microservizio tramite Gateway
+    await apiPost(endpoint, payload);
 
     return NextResponse.json({ message: "Registrazione avvenuta con successo" });
-  } catch (error) {
-    console.error("Errore registrazione:", error);
+  } catch (error: any) {
+    console.error("Errore registrazione API:", error);
+    
+    // Se il microservizio lancia una EmailAlreadyExistsException, dovrebbe tornare un 409
+    // Gestiamo il fallback con un 500 generico per sicurezza
     return NextResponse.json(
-      { error: "Errore del server" },
+      { error: "Errore del server o email già registrata" },
       { status: 500 }
     );
   }

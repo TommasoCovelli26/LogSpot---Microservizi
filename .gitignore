@@ -46,3 +46,6 @@ next-env.d.ts
 
 # local database
 app/data/database.db
+
+# File di ambiente locali
+.env

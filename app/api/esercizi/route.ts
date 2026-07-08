@@ -1,78 +1,35 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import connectToDatabase from '@/lib/mongodb';
-import Esercizio from '@/models/Esercizio';
-import Logopedista from '@/models/Logopedista';
-import Paziente from '@/models/Paziente';
-import { fetchAssignedExercises } from '@/lib/activities';
+import { apiGet } from '../../../lib/http/client';
+import { SERVICES } from '../../../lib/config/services';
 
-function externalIdFromUnknown(value: unknown): number {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const parsed = Number.parseInt(value, 10);
-    if (Number.isFinite(parsed)) return parsed;
-    if (mongoose.isValidObjectId(value)) return Number.parseInt(value.slice(-8), 16);
-  }
-  if (value instanceof mongoose.Types.ObjectId) {
-    return Number.parseInt(value.toString().slice(-8), 16);
-  }
-  return 0;
-}
-
-function toIsoString(value: Date | string | null | undefined): string {
-  if (!value) return new Date().toISOString();
-  if (typeof value === 'string') return value;
-  return value.toISOString();
-}
-
-/**
- * Handler GET per l'endpoint /api/esercizi
- * Recupera la lista degli esercizi assegnati a un paziente.
- * Supporta due modalità:
- * - Con cf + pIva: restituisce gli esercizi assegnati da un logopedista specifico a un paziente (vista logopedista)
- * - Con solo cf: restituisce tutti gli esercizi di un paziente con supporto ricerca e filtri (vista paziente)
- * Parametri query string: cf, pIva, query (ricerca), filter (tutti/completati/in-corso)
- */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const cf = searchParams.get('cf');
   const pIva = searchParams.get('pIva');
+  // Parametri usati nella vista paziente
   const query = searchParams.get('query') || '';
   const filter = searchParams.get('filter') || 'tutti';
 
+  // Modalità 1: Vista Logopedista (recupera gli esercizi assegnati da un logopedista specifico a un paziente)
   if (cf && pIva) {
     try {
-      await connectToDatabase();
-
-      const [logopedista, patient] = await Promise.all([
-        Logopedista.findOne({ pIva }).select('_id').lean(),
-        Paziente.findOne({ cf }).select('_id').lean(),
-      ]);
-
-      const patientConditions: any[] = [{ id_paziente: cf }];
-      if (patient?._id) patientConditions.push({ paziente: patient._id });
-
-      const logopedistaConditions: any[] = [{ id_logopedista: pIva }];
-      if (logopedista?._id) logopedistaConditions.push({ logopedista: logopedista._id });
-
-      const rows = await Esercizio.find({
-        $and: [{ $or: patientConditions }, { $or: logopedistaConditions }],
-      })
-        .populate({ path: 'attivita', select: 'titolo _id cod' })
-        .sort({ dataAssegnazione: -1 })
-        .lean<any[]>();
-
-      const mapped = rows.map((exercise) => ({
-        id: externalIdFromUnknown(exercise.id ?? exercise._id),
-        titolo: exercise.attivita?.titolo || '',
-        dataAssegnazione: toIsoString(exercise.dataAssegnazione),
-        statoCompletamento: exercise.statoCompletamento ?? null,
-        esito: exercise.esito ?? null,
-      }));
+      // Usiamo l'endpoint del therapy service per recuperare gli esercizi del paziente
+      let esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
+      
+      // Filtriamo lato frontend per assicurarci che siano quelli assegnati da questo specifico logopedista
+      let mapped = esercizi
+        .filter(e => e.logopedistaId === pIva || e.id_logopedista === pIva)
+        .map((exercise) => ({
+          id: exercise.id,
+          titolo: exercise.titolo || 'Esercizio',
+          dataAssegnazione: exercise.dataAssegnazione || new Date().toISOString(),
+          statoCompletamento: exercise.statoCompletamento ?? null,
+          esito: exercise.esito ?? null,
+        }));
 
       return NextResponse.json(mapped);
     } catch (error) {
-      console.error('Database Error:', error);
+      console.error('API Error:', error);
       return NextResponse.json(
         { error: 'Errore nel recupero degli esercizi del logopedista' },
         { status: 500 }
@@ -80,12 +37,36 @@ export async function GET(req: Request) {
     }
   }
 
+  // Modalità 2: Vista Paziente (recupera tutti gli esercizi del paziente con filtri)
   if (cf) {
     try {
-      const rows = await fetchAssignedExercises(cf, query, filter);
-      return NextResponse.json(rows);
+      let esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
+      
+      let mapped = esercizi.map(e => ({
+        id: e.id,
+        titolo: e.titolo || 'Esercizio',
+        dataAssegnazione: e.dataAssegnazione,
+        statoCompletamento: e.statoCompletamento,
+        esito: e.esito,
+        id_attivita: e.attivitaId || e.id_attivita
+      }));
+
+      // Applica i filtri di ricerca testuale
+      const trimmedQuery = query.trim().toLowerCase();
+      if (trimmedQuery) {
+        mapped = mapped.filter(e => e.titolo.toLowerCase().includes(trimmedQuery));
+      }
+      
+      // Applica i filtri di stato
+      if (filter === 'completati') {
+        mapped = mapped.filter(e => e.statoCompletamento === 'completato');
+      } else if (filter === 'in-corso') {
+        mapped = mapped.filter(e => !e.statoCompletamento || e.statoCompletamento === 'in-corso');
+      }
+
+      return NextResponse.json(mapped);
     } catch (error) {
-      console.error('Database Error:', error);
+      console.error('API Error:', error);
       return NextResponse.json(
         { error: 'Errore nel recupero degli esercizi del paziente' },
         { status: 500 }

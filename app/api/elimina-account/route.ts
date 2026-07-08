@@ -1,62 +1,38 @@
-// Importa NextResponse da Next.js per costruire risposte HTTP nelle API route
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/mongodb";
-import Logopedista from "@/models/Logopedista";
-import Paziente from "@/models/Paziente";
+import { cookies } from "next/headers";
+import { apiDelete } from "../../../lib/http/client";
+import { SERVICES } from "../../../lib/config/services";
 
-/**
- * Handler DELETE per l'endpoint /api/elimina-account
- * Elimina definitivamente l'account di un utente dal database.
- * Riceve nel body JSON l'email e il ruolo dell'utente da eliminare.
- * L'eliminazione è irreversibile e, grazie ai vincoli ON DELETE CASCADE nello schema,
- * rimuove automaticamente anche tutti i dati associati (attività, esercizi, commenti, ecc.).
- */
+async function getSession() {
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get("utente");
+  if (!userCookie) return null;
+  try {
+    const userData = JSON.parse(userCookie.value);
+    const id = userData.ruolo === "logopedista" ? userData.utente.pIva : userData.utente.cf;
+    return { id, ruolo: userData.ruolo };
+  } catch {
+    return null;
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
-    await connectToDatabase();
-
-    // Estrae email e ruolo dal corpo della richiesta JSON
-    const { email, ruolo } = await req.json();
-
-    // Validazione: verifica che email e ruolo siano presenti
-    if (!email || !ruolo) {
-      // Restituisce errore 400 (Bad Request) se mancano i dati obbligatori
-      return NextResponse.json(
-        { error: "Dati mancanti" },
-        { status: 400 }
-      );
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
     }
 
-    // Variabile per memorizzare il numero di record eliminati
-    let deletedCount = 0;
+    // Chiamata DELETE al microservizio User tramite Gateway
+    await apiDelete(`${SERVICES.USER}/${session.ruolo}/${session.id}`);
 
-    // Se il ruolo è 'logopedista', elimina il record dalla tabella Logopedista
-    if (ruolo === "logopedista") {
-      const result = await Logopedista.deleteOne({ email });
-      deletedCount = result.deletedCount ?? 0;
-    }
+    // Eliminiamo anche il cookie per fare logout automatico dal frontend
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("utente", "", { path: "/", expires: new Date(0) });
 
-    // Se il ruolo è 'paziente', elimina il record dalla tabella Paziente
-    if (ruolo === "paziente") {
-      const result = await Paziente.deleteOne({ email });
-      deletedCount = result.deletedCount ?? 0;
-    }
-
-    // Verifica se l'eliminazione è avvenuta
-    if (deletedCount === 0) {
-      // Restituisce errore 404 (Not Found) se l'utente non è stato trovato nel database
-      return NextResponse.json(
-        { error: "Utente non trovato" },
-        { status: 404 }
-      );
-    }
-
-    // Restituisce successo se l'account è stato eliminato correttamente
-    return NextResponse.json({ success: true });
+    return response;
   } catch (error) {
-    // Logga l'errore nella console per il debug
-    console.error("Errore eliminazione account:", error);
-    // Restituisce errore 500 (Internal Server Error) in caso di eccezione
+    console.error("Errore eliminazione account API:", error);
     return NextResponse.json(
       { error: "Errore interno del server" },
       { status: 500 }

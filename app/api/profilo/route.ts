@@ -1,48 +1,35 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/mongodb";
-import Logopedista from "@/models/Logopedista";
-import Paziente from "@/models/Paziente";
+import { cookies } from "next/headers";
+import { apiGet, apiPut } from "../../../lib/http/client";
+import { SERVICES } from "../../../lib/config/services";
 
 /**
- * Handler GET per l'endpoint /api/profilo
- * Recupera i dati del profilo di un utente (logopedista o paziente) in base a email e ruolo.
- * I parametri vengono passati come query string: ?email=...&ruolo=...
+ * Funzione di utilità per estrarre l'ID e il ruolo dal cookie
  */
+async function getSession() {
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get("utente");
+  if (!userCookie) return null;
+
+  try {
+    const userData = JSON.parse(userCookie.value);
+    const id = userData.ruolo === "logopedista" ? userData.utente.pIva : userData.utente.cf;
+    return { id, ruolo: userData.ruolo };
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: Request) {
   try {
-    await connectToDatabase();
-
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get("email");
-    const ruolo = searchParams.get("ruolo");
-
-    if (!email || !ruolo) {
-      return NextResponse.json(
-        { error: "Parametri mancanti" },
-        { status: 400 }
-      );
+    const session = await getSession();
+    
+    if (!session) {
+      return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
     }
 
-    let utente: any = null;
-
-    if (ruolo === "logopedista") {
-      utente = await Logopedista.findOne({ email })
-        .select("nome cognome dataNascita numTelefono email")
-        .lean();
-    }
-
-    if (ruolo === "paziente") {
-      utente = await Paziente.findOne({ email })
-        .select("nome cognome dataNascita numTelefono email")
-        .lean();
-    }
-
-    if (!utente) {
-      return NextResponse.json(
-        { error: "Utente non trovato" },
-        { status: 404 }
-      );
-    }
+    // Chiama l'UserController tramite il Gateway (es. /users/logopedista/12345)
+    const utente = await apiGet<any>(`${SERVICES.USER}/${session.ruolo}/${session.id}`);
 
     return NextResponse.json({
       nome: utente.nome,
@@ -50,82 +37,45 @@ export async function GET(req: Request) {
       dataNascita: utente.dataNascita ? new Date(utente.dataNascita).toISOString() : null,
       numTelefono: utente.numTelefono ?? null,
       email: utente.email,
-      ruolo,
+      ruolo: session.ruolo,
     });
   } catch (error) {
-    console.error("Errore API profilo:", error);
+    console.error("Errore API profilo (GET):", error);
     return NextResponse.json(
-      { error: "Errore interno del server" },
+      { error: "Errore interno del server o utente non trovato" },
       { status: 500 }
     );
   }
 }
 
-/**
- * Handler PUT per l'endpoint /api/profilo
- * Aggiorna i dati del profilo di un utente (logopedista o paziente).
- * Riceve nel body JSON i nuovi dati e l'email originale per identificare il record da aggiornare.
- */
 export async function PUT(req: Request) {
   try {
-    await connectToDatabase();
+    const session = await getSession();
+    
+    if (!session) {
+      return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
+    }
 
     const body = await req.json();
+    
+    // Il backend Java nel tuo UpdateUserRequest accetta attualmente solo nome, cognome, email
+    const { nome, cognome, email, dataNascita, numTelefono } = body;
 
-    const {
-      ruolo,
+    // Invia i dati al microservizio
+    await apiPut(`${SERVICES.USER}/${session.ruolo}/${session.id}`, {
       nome,
       cognome,
-      dataNascita,
-      numTelefono,
       email,
-      emailOriginale,
-    } = body;
-
-    if (!emailOriginale || !ruolo) {
-      return NextResponse.json(
-        { error: "Dati mancanti" },
-        { status: 400 }
-      );
-    }
-
-    if (ruolo === "logopedista") {
-      await Logopedista.updateOne(
-        { email: emailOriginale },
-        {
-          $set: {
-            nome,
-            cognome,
-            dataNascita: dataNascita || null,
-            numTelefono: numTelefono || null,
-            email,
-          },
-        }
-      );
-    }
-
-    if (ruolo === "paziente") {
-      await Paziente.updateOne(
-        { email: emailOriginale },
-        {
-          $set: {
-            nome,
-            cognome,
-            dataNascita: dataNascita || null,
-            numTelefono: numTelefono || null,
-            email,
-          },
-        }
-      );
-    }
+      dataNascita: dataNascita || null,
+      numTelefono: numTelefono || null
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Errore aggiornamento profilo:", error);
+    console.error("Errore aggiornamento profilo API (PUT):", error);
     return NextResponse.json(
       { error: "Errore interno del server" },
       { status: 500 }
     );
   }
 }
-

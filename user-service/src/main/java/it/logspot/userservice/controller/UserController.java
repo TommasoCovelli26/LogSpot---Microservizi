@@ -72,6 +72,11 @@ public class UserController {
 
     }
 
+    @GetMapping("/pazienti/unassigned")
+    public ResponseEntity<List<UserResponse>> getUnassignedPazienti() {
+        return ResponseEntity.ok(userService.getUnassignedPazienti());
+    }
+
     @DeleteMapping("/logopedista/{id}")
     public ResponseEntity<Void> deleteLogopedista(
             @PathVariable String id){

@@ -68,6 +68,11 @@
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-servicebus-jms</artifactId>
+            <version>5.10.0</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
