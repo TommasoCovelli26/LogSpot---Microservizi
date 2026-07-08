@@ -1,19 +1,82 @@
+version: "3.9"
+
 services:
+
+  eureka-server:
+    build:
+      context: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    restart: unless-stopped
+    networks:
+      - logspot-network
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    restart: unless-stopped
+    networks:
+      - logspot-network
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+    restart: unless-stopped
+    networks:
+      - logspot-network
+
+  catalog-service:
+    build:
+      context: ./catalog-service
+    container_name: catalog-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+    restart: unless-stopped
+    networks:
+      - logspot-network
+
+  therapy-service:
+    build:
+      context: ./therapy-service
+    container_name: therapy-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+    restart: unless-stopped
+    networks:
+      - logspot-network
+
   logspot-web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: logspot_web_local
     ports:
       - "3000:3000"
     environment:
-      - PORT=3000
-      - NODE_ENV=production # Simula l'ambiente di produzione
-      
-      # [ATTENZIONE]: Sostituite questo URI con la reale stringa di connessione 
-      # al MongoDB (es. MongoDB Atlas) che Tommaso ha configurato.
-      # Se c'è una password speciale o caratteri nel DB, ricordate di passarli corretti.
-      - MONGODB_URI=mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
-      
-      # Eventuali altre variabili d'ambiente (es. JWT_SECRET, ecc.)
-      # - JWT_SECRET=il_vostro_segreto_per_i_token
+      PORT: 3000
+      NODE_ENV: production
+      MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
+    depends_on:
+      - gateway-service
+    restart: unless-stopped
+    networks:
+      - logspot-network
+
+networks:
+  logspot-network:
+    driver: bridge
