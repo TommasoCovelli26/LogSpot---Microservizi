@@ -109,14 +109,36 @@ public class UserService {
 
     }
 
-    public void deleteLogopedista(String id){
+    public void deleteLogopedista(String id) {
 
         Logopedista logopedista = logopedistaRepository.findById(id)
                 .orElseThrow(() ->
                         new UserNotFoundException("Logopedista non trovato"));
 
+        // Recupera tutti i pazienti associati al logopedista
+        List<Paziente> pazienti = pazienteRepository.findByLogopedista(id);
+
+        // Disaccoppia i pazienti
+        for (Paziente paziente : pazienti) {
+            paziente.setLogopedista(null);
+        }
+
+        pazienteRepository.saveAll(pazienti);
+
+        System.out.println("Pazienti disaccoppiati dal logopedista " + id);
+
+        // Elimina il logopedista
         logopedistaRepository.delete(logopedista);
 
+        System.out.println("Logopedista rimosso dal DB Users.");
+
+        // Invia evento al Service Bus
+        jmsTemplate.convertAndSend(
+                "logspot-events",
+                "LOGOPEDISTA_DELETED:" + id
+        );
+
+        System.out.println("📣 Evento LOGOPEDISTA_DELETED inviato ad Azure!");
     }
 
     public void deletePaziente(String id){

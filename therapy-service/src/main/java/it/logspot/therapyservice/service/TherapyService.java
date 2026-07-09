@@ -88,6 +88,16 @@ public class TherapyService {
         repository.deleteByPaziente(pazienteId);
         System.out.println("Eliminazione a cascata completata: Esercizi rimossi per il paziente " + pazienteId);
     }
+
+    public void deleteExercisesByLogopedista(String logopedistaId) {
+
+        repository.deleteByLogopedista(logopedistaId);
+
+        System.out.println(
+                "Eliminazione a cascata completata: esercizi rimossi per il logopedista "
+                        + logopedistaId);
+
+    }
     
     public void deleteExercise(String id){
 

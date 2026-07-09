@@ -21,4 +21,7 @@ public interface EsercizioRepository extends MongoRepository<Esercizio, String> 
     // Elimina tutti gli esercizi assegnati a uno specifico paziente
     @Query(value = "{'$or': [{'paziente': ?0}, {'pazienteId': ?0}]}", delete = true)
     void deleteByPaziente(String pazienteId);
+
+    // Elimina tutti gli esercizi assegnati da un logopedista
+    void deleteByLogopedista(String logopedista);
 }
