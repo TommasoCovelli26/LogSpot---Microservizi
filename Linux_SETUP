@@ -1,0 +1,132 @@
+# 🐧 Guida Configurazione LogSpot per Linux
+
+Questa guida spiega come configurare ed eseguire l'architettura a microservizi **LogSpot** su un ambiente nativo Linux.
+
+---
+
+## 1. Prerequisiti
+
+### 1.1 Installare Docker & Docker Compose
+
+Il metodo più affidabile per eseguire l'infrastruttura è tramite containerizzazione. Se non hai ancora Docker installato, esegui questi comandi nel terminale:
+
+```bash
+# Rimuovi versioni vecchie o in conflitto
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+# Setup repository ufficiale Docker
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL [https://download.docker.com/linux/ubuntu/gpg](https://download.docker.com/linux/ubuntu/gpg) | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Aggiungi il repository e installa Docker Core e Compose
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] [https://download.docker.com/linux/ubuntu](https://download.docker.com/linux/ubuntu) \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Abilita l'esecuzione di Docker senza 'sudo' (consigliato per sviluppatori)
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+### 1.2 Installare Java e Node.js (Solo per sviluppo manuale)
+
+Queste dipendenze sono necessarie solo se desideri avviare i servizi di LogSpot esternamente a Docker per fare live-debug:
+```bash
+# Installa Java 21 (OpenJDK)
+sudo apt update
+sudo apt install -y openjdk-21-jdk
+
+# Verifica installazione Java
+java -version
+
+# Installa Node.js (LTS v20) e npm
+curl -fsSL [https://deb.nodesource.com/setup_20.x](https://deb.nodesource.com/setup_20.x) | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+---
+
+## 2. Inizializzazione Cloud e Sicurezza
+
+Prima di avviare l'applicazione, è obbligatorio autorizzare le connessioni ai servizi cloud esterni e configurare le chiavi crittografiche.
+
+### 2.1 Sblocco IP MongoDB Atlas
+
+Affinché i container Docker possano comunicare con il cloud e non vengano bloccati dal firewall del database:
+
+1. Vai sulla dashboard di **MongoDB Atlas**.
+2. Nel menu a sinistra, seleziona **Network Access**.
+3. Clicca su **Add IP Address** e scegli l'opzione **"Allow Access from Anywhere"** (verrà aggiunto l'IP `0.0.0.0/0`).
+4. Salva e attendi l'attivazione.
+
+### 2.2 Creazione File Segreto (`.env`)
+
+La Connection String di Azure Service Bus non deve mai essere tracciata nel codice. Creiamo il file segreto che Docker andrà a leggere:
+
+1. Naviga nella root del progetto (dove risiede il file `docker-compose.yml`):
+```bash
+cd /percorso/del/tuo/progetto/LogSpot---Microservizi
+touch .env
+nano .env
+```
+2. Incolla la tua stringa di connessione primaria. **Attenzione:** non inserire spazi attorno all'uguale e non usare le virgolette:
+```bash
+AZURE_SERVICEBUS_CONNECTION_STRING=Endpoint=sb://[TUO_NAMESPACE].servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[TUA_CHIAVE]=
+```
+3. Salva con `CTRL+O`, premi `Invio`, ed esci con `CTRL+X`.
+
+---
+
+## 3. Avvio dell'Ecosistema
+
+### Metodo A: Esecuzione Dockerizzata
+
+Questo comando provvederà a scaricare/buildare le immagini Java e Node.js e orchestrerà l'avvio nell'ordine corretto (Eureka -> Microservizi -> Gateway -> Frontend).
+```bash
+# Avvia tutti i servizi in modalità detached (background)
+docker-compose up --build -d
+
+# Per visualizzare i log in tempo reale di un servizio specifico (es. user-service):
+docker logs -f user-service
+```
+*L'applicativo web sarà accessibile all'indirizzo http://localhost:3000.*
+
+### Metodo B: Avvio Manuale (Hot Reload)
+
+Per eseguire il codice sul sistema host e vedere le modifiche istantanee:
+
+1. **Eureka Server (Obbligatorio per primo):**
+```bash
+cd eureka-server
+./mvnw spring-boot:run
+```
+2. **Microservizi & Gateway (In terminali separati):** *(Ricorda che Java deve poter leggere la variabile AZURE_SERVICEBUS_CONNECTION_STRING esportata nel terminale)*
+```bash
+cd gateway-service && ./mvnw spring-boot:run
+cd user-service && ./mvnw spring-boot:run
+cd catalog-service && ./mvnw spring-boot:run
+cd therapy-service && ./mvnw spring-boot:run
+```
+3. **Frontend (Next.js):**
+```bash
+cd app
+npm install
+npm run dev
+```
+
+---
+
+## 4. Troubleshooting Comuni
+
+| Sintomo | Causa Probabile | Soluzione Rapida |
+| :--- | :--- | :--- |
+| **`MongoTimeoutException` nei log di Docker** | Il firewall di MongoDB Atlas blocca le richieste. | Torna al Punto 2.1 e verifica che l'IP `0.0.0.0/0` sia in stato Active su Atlas. |
+| **I microservizi vanno in Crash subito (Exited)** | Il container non legge correttamente la chiave di Azure dal file `.env`. | Assicurati che il file si chiami esattamente `.env` (senza estensioni nascoste tipo `.env.txt`) e che la sintassi non contenga apici `" "`. |
+| **Errore `mvnw: permission denied`** | Lo script Maven Wrapper non ha i permessi di esecuzione su Linux. | Esegui il comando `chmod +x mvnw` all'interno della cartella del microservizio bloccato. |
+| **Porta 8080 o 3000 già in uso** | Un altro processo sta occupando le porte di LogSpot. | Identifica il processo con `sudo lsof -i :8080` (o 3000) e terminalo con `kill -9 <PID>`. |

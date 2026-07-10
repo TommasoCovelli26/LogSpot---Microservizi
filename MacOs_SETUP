@@ -1,0 +1,112 @@
+# 🍎 Guida Configurazione LogSpot per macOS (Intel & Apple Silicon)
+
+Questa guida spiega come configurare ed eseguire l'architettura a microservizi **LogSpot** su macOS.
+I comandi e i software indicati sono compatibili e nativamente ottimizzati sia con i processori Intel che con i chip Apple Silicon (M1/M2/M3/M4).
+
+---
+
+## 1. Prerequisiti
+
+### 1.1 Installare Homebrew
+
+Se non hai ancora [Homebrew](https://brew.sh/) (il gestore di pacchetti per macOS) installato, apri il Terminale ed esegui:
+```bash
+/bin/bash -c "$(curl -fsSL [https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
+```
+
+### 1.2 Installare Docker Desktop per Mac
+
+Il modo più stabile e raccomandato per avviare l'infrastruttura di LogSpot è tramite Docker.
+
+1. Scarica e installa Docker Desktop per Mac (Scegli la versione corretta tra "Apple Chip" o "Intel Chip" in base al tuo Mac).
+2. Avvia l'applicazione e attendi che l'icona della balena (o il motore) nella barra dei menu in alto a destra mostri lo stato verde (Running).
+
+### 1.3 Installare Java e Node.js (Solo per sviluppo manuale)
+
+Se intendi avviare i servizi localmente per il debug in tempo reale (senza usare i container Docker), usa Homebrew per installare l'ambiente:
+```bash
+# Aggiorna brew
+brew update
+
+# Installa Java 21 (OpenJDK)
+brew install openjdk@21
+
+# Collega java al sistema per renderlo visibile al terminale (segui eventuali istruzioni a video, di solito:)
+sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+
+# Installa Node.js (versione LTS 20) per il frontend
+brew install node@20
+brew link node@20
+```
+
+---
+
+## 2. Inizializzazione Cloud e Sicurezza
+
+LogSpot comunica con servizi in cloud. Prima di avviare il codice, è fondamentale autorizzare gli accessi dal tuo ambiente locale.
+
+### 2.1 Sblocco IP MongoDB Atlas
+
+Essendo i container Docker virtualizzati (o il tuo Mac sotto rete dinamica), MongoDB Atlas potrebbe bloccare le connessioni.
+
+1. Vai sulla dashboard online di **MongoDB Atlas**.
+2. Nel menu a sinistra, clicca su **Network Access**.
+3. Clicca su **Add IP Address** e scegli **"Allow Access from Anywhere"** (aggiungerà l'IP `0.0.0.0/0`).
+4. Salva e attendi che lo stato diventi *Active*.
+
+### 2.2 Creazione File Segreto (`.env`)
+
+Le credenziali del Service Bus di Azure non vanno mai inserite nel codice sorgente. Crea il file nascosto `.env` affinché Docker possa leggerle in sicurezza:
+
+1. Apri il Terminale e naviga nella cartella principale del progetto:
+```bash
+cd /percorso/del/tuo/progetto/LogSpot---Microservizi
+touch .env
+nano .env
+```
+2. Incolla la tua stringa di connessione (senza usare virgolette e senza spazi attorno all'uguale):
+```bash
+AZURE_SERVICEBUS_CONNECTION_STRING=Endpoint=sb://[TUO_NAMESPACE].servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[TUA_CHIAVE]=
+```
+3. Salva premendo `CTRL+O`, `Invio`, e chiudi nano con `CTRL+X`.
+
+---
+
+## 3. Avvio dell'Ecosistema
+
+### Metodo A: Containerizzazione Completa
+
+Avvia l'intero ecosistema (Frontend, Gateway, Eureka e i 3 Microservizi) in un colpo solo e in background:
+```bash
+# Assicurati di essere nella root del progetto (dove si trova il docker-compose.yml)
+docker-compose up --build -d
+```
+*Attendi 1-2 minuti affinché i servizi Java si "riscaldino" e si registrino su Eureka.
+L'applicativo web sarà raggiungibile su: **http://localhost:3000***
+
+### Metodo B: Sviluppo Manuale (Hot Reload)
+
+Per modificare il codice e testarlo immediatamente senza dover rigenerare i container Docker:
+
+1. **Service Registry (sempre per primo):** Apri un terminale, vai in `eureka-server` ed esegui `./mvnw spring-boot:run`
+2. **Microservizi & Gateway:** Apri 4 nuovi tab nel Terminale (`CMD+T`), naviga nelle rispettive cartelle (`gateway-service`, `user-service`, `catalog-service`, `therapy-service`) ed esegui per ognuno:
+```bash
+# Ricorda che il terminale deve conoscere la variabile di Azure prima di avviare il backend
+export AZURE_SERVICEBUS_CONNECTION_STRING="Endpoint=sb://..."
+./mvnw spring-boot:run
+```
+3. **Frontend Web:** Apri un ennesimo tab del terminale nella cartella `app`:
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## 4. Troubleshooting
+
+| Problema | Causa e Soluzione |
+| :--- | :--- |
+| **Avviso Sicurezza "Sviluppatore non verificato"** | Se macOS (soprattutto le versioni più recenti come Sonoma/Sequoia) blocca l'esecuzione iniziale di Java o di script interni, vai in **Impostazioni di Sistema** -> **Privacy e Sicurezza** -> scorri verso il basso e consenti l'esecuzione del file bloccato. |
+| **Porta 8080 Occupata** | Il `gateway-service` necessita della porta `8080`. Se questa porta è già occupata da un altro servizio su Mac, l'avvio fallirà. Identifica chi la sta usando eseguendo `lsof -i :8080` e termina il processo (o il container) in conflitto. |
+| **Errore `mvnw: permission denied`** | Se avvii il progetto manualmente e ricevi questo errore, significa che lo script ha perso i permessi di esecuzione. Esegui `chmod +x mvnw` nella cartella del microservizio interessato. |
