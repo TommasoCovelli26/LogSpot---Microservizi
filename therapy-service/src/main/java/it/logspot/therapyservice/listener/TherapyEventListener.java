@@ -19,12 +19,23 @@ public class TherapyEventListener {
         System.out.println("📩 Evento ricevuto da Azure Service Bus: " + message);
         
         // Se il messaggio è un comando di eliminazione paziente
-        if (message != null && message.startsWith("PATIENT_DELETED:")) {
-            // Estrae l'ID del paziente (es. da "PATIENT_DELETED:CF12345" estrae "CF12345")
+        if (message == null) {
+            return;
+        }
+
+        if (message.startsWith("PATIENT_DELETED:")) {
+
             String pazienteId = message.split(":")[1];
-            
-            // Avvia l'eliminazione a cascata!
+
             therapyService.deleteExercisesByPaziente(pazienteId);
+
+        }
+        else if (message.startsWith("LOGOPEDISTA_DELETED:")) {
+
+            String logopedistaId = message.split(":")[1];
+
+            therapyService.deleteExercisesByLogopedista(logopedistaId);
+
         }
     }
 }
