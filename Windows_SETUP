@@ -1,0 +1,77 @@
+# ⊞ Guida Configurazione LogSpot per Windows
+
+Questa guida spiega come configurare ed eseguire l'architettura a microservizi **LogSpot** su Windows 10 o 11 in modo rapido.
+
+---
+
+## 1. Prerequisiti di Base
+
+### 1.1 Installare Docker Desktop per Windows
+Il modo più semplice, pulito e affidabile per eseguire l'intera infrastruttura è tramite Docker.
+1. Scarica e installa [Docker Desktop](https://www.docker.com/products/docker-desktop).
+2. Avvia Docker Desktop e attendi che l'icona del motore in basso a sinistra diventi verde (Running).
+
+### 1.2 Installare le Dipendenze (Opzionale, solo per avvio manuale)
+Se desideri avviare i servizi di LogSpot senza Docker (per sviluppare o testare senza container), avrai bisogno di installare:
+* **Java 21:** Scarica e installa l'JDK 21 (assicurandoti di aggiungere Java alle variabili d'ambiente `PATH`).
+* **Node.js v20:** Scarica e installa la versione LTS da nodejs.org.
+
+---
+
+## 2. Inizializzazione Cloud e Sicurezza
+
+Prima di avviare il codice, è fondamentale configurare gli accessi ai servizi Cloud esterni. Senza questi passaggi, le applicazioni andranno in crash.
+
+### 2.1 Sblocco IP MongoDB Atlas
+Poiché i container Docker (o il tuo PC locale) utilizzano un IP che MongoDB non conosce, Atlas bloccherà le connessioni per sicurezza.
+1. Accedi alla dashboard online di **MongoDB Atlas**.
+2. Nel menu a sinistra, clicca su **Network Access**.
+3. Clicca su **Add IP Address**.
+4. Seleziona **"Allow Access from Anywhere"** (verrà aggiunto automaticamente l'IP `0.0.0.0/0`).
+5. Salva e attendi che lo stato diventi *Active*.
+
+### 2.2 Configurazione Azure Service Bus
+La chiave per la comunicazione asincrona tra i microservizi non deve mai essere caricata su GitHub. Creiamo il file segreto per Docker:
+1. Apri la cartella del progetto (LogSpot---Microservizi) utilizzando **Visual Studio Code** o esplora risorse.
+2. Crea un nuovo file chiamato esattamente **`.env`** nella directory principale (allo stesso livello del file `docker-compose.yml`).
+3. Incolla all'interno la stringa di connessione (rigorosamente senza virgolette e senza spazi attorno all'uguale):
+   ```env
+   AZURE_SERVICEBUS_CONNECTION_STRING=Endpoint=sb://[TUO_NAMESPACE].servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[TUA_CHIAVE]=
+
+---
+
+## 3. Avvio dell'Ecosistema
+
+### Metodo A: Avvio Dockerizzato
+Questo è il metodo ottimale. Docker Compose si occuperà di rispettare l'ordine di accensione (Eureka -> Microservizi -> Gateway) e configurare le reti interne.
+
+1. Apri **PowerShell** o il terminale integrato di **VSCode** nella root del progetto.
+2. Esegui il comando:
+```bash
+docker-compose up --build -d
+```
+*Nota: Dai al sistema circa 1-2 minuti per il "warm-up" (Eureka impiega un po' per registrare i microservizi `user-service`, `catalog-service` e `therapy-service`).
+Il portale sarà accessibile all'indirizzo: http://localhost:3000*
+
+### Metodo B: Sviluppo Manuale su Windows (Hot Reload)
+Se devi modificare il codice e vuoi vedere le modifiche in tempo reale, dovrai usare il file batch `mvnw.cmd` per Windows:
+
+1. **Service Registry:** Apri PowerShell in `eureka-server` ed esegui `.\mvnw.cmd spring-boot:run`
+2. **Microservizi:** Apri terminali separati per `user-service`, `catalog-service`, e `therapy-service` ed esegui in ognuno `.\mvnw.cmd spring-boot:run.` (Prima dell'avvio, ricorda che Java dovrà leggere la variabile d'ambiente di Azure situata nel file `.env`).
+3. **API Gateway:** Apri PowerShell in `gateway-service` ed esegui `.\mvnw.cmd spring-boot:run`
+4. **Frontend Next.js:** Apri PowerShell nella cartella `app`, quindi esegui:
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## 4. Troubleshooting Comuni
+
+| Problema | Causa e Soluzione |
+| :--- | :--- |
+| **`MongoTimeoutException` nei log di Docker** | Il firewall di MongoDB Atlas sta bloccando la connessione. Torna al Punto 2.1 e assicurati di aver inserito l'IP `0.0.0.0/0` in Network Access. |
+| **I microservizi vanno in Crash subito (Exited)** | Errore di sintassi nel file `.env`. Verifica che non ci siano spazi vuoti prima o dopo il segno `=`, e che l'intera stringa non sia racchiusa tra virgolette `"..."`. |
+| **Porta 8080 già in uso** | Il Gateway usa la porta `8080`. Se su Windows hai altri servizi attivi (es. Tomcat, Oracle, IIS), liberala spegnendo quei processi prima di avviare LogSpot. |
+| **Schermata bianca o API Error su Next.js** | Il Gateway o Eureka non sono ancora pronti. Attendi qualche istante e aggiorna la pagina. |
