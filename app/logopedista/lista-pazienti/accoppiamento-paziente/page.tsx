@@ -142,7 +142,7 @@ export default async function Page({
     try {
       const userData = JSON.parse(userCookie.value);
       // Estrae la P.IVA dell'utente loggato
-      pIva = userData.utente?.pIva || '';
+      pIva = userData.utente?.pIva || userData.utente?.PIva || userData.utente?.codice || '';
     } catch (error) {
       console.error('Errore parsing cookie:', error);
     }

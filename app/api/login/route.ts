@@ -20,11 +20,21 @@ export async function POST(request: Request) {
       password
     });
 
+    const utente = authResponse?.utente || {};
+    const ruolo = authResponse?.ruolo?.toLowerCase?.() || authResponse?.ruolo;
+    const pIva = utente.pIva ?? utente.PIva ?? null;
+    const cf = utente.cf ?? null;
+
     // Dal backend supponiamo torni un oggetto con utente, ruolo (e magari il token JWT)
     if (authResponse && authResponse.utente) {
       const userData = {
-        ruolo: authResponse.ruolo.toLowerCase(),
-        utente: authResponse.utente,
+        ruolo,
+        utente: {
+          ...utente,
+          pIva,
+          cf,
+          codice: pIva ?? cf,
+        },
         token: authResponse.token // Se il tuo backend genera un JWT
       };
 

@@ -67,7 +67,7 @@ export default async function ActivityDetailPage({
         // Compone il nome completo del creatore da nome e cognome
         creatorName = `${userData.utente.nome} ${userData.utente.cognome}`;
         // Salva la P.IVA per la sezione commenti
-        currentPiva = userData.utente.pIva;
+        currentPiva = userData.utente.pIva || userData.utente.PIva || userData.utente.codice;
       }
     } catch (e) {
       // Logga l'errore se il cookie non è parsabile

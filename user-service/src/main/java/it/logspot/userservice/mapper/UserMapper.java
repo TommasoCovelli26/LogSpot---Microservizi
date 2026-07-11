@@ -15,7 +15,11 @@ public class UserMapper {
                 logopedista.getNome(),
                 logopedista.getCognome(),
                 logopedista.getEmail(),
-                "LOGOPEDISTA"
+                "LOGOPEDISTA",
+                logopedista.getPIva(),
+                null,
+                logopedista.getDataNascita(),
+                logopedista.getNumTelefono()
         );
 
     }
@@ -27,7 +31,11 @@ public class UserMapper {
                 paziente.getNome(),
                 paziente.getCognome(),
                 paziente.getEmail(),
-                "PAZIENTE"
+                "PAZIENTE",
+                null,
+                paziente.getCf(),
+                paziente.getDataNascita(),
+                paziente.getNumTelefono()
         );
 
     }

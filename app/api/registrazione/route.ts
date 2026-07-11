@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       : `${GATEWAY_URL}/api/auth/register/paziente`;
 
     // Effettuiamo la chiamata al microservizio tramite Gateway
+    console.log("Payload inviato:", JSON.stringify(payload, null, 2));
     await apiPost(endpoint, payload);
 
     return NextResponse.json({ message: "Registrazione avvenuta con successo" });

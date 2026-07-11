@@ -54,7 +54,7 @@ export async function fetchActivities(userId: string, query: string = '', filter
 
     // 2. Mappa e filtra per utente
     let mapped = activities
-      .filter(a => a.id_logopedista === userId)
+      .filter(a => a.creatore === userId || a.id_logopedista === userId)
       .map(a => ({
         cod: Number(a.id || a.cod),
         titolo: a.titolo,
@@ -75,10 +75,10 @@ export async function fetchActivities(userId: string, query: string = '', filter
 
 export async function fetchPublicActivities(userId: string, query: string = '', filter: string = 'recenti', age?: number, pathologies?: string[]): Promise<ActivityWithFavorite[]> {
   try {
-    const [activities, preferiti] = await Promise.all([
-      apiGet<any[]>(`${SERVICES.CATALOG}/accessibilita/true`),
-      apiGet<any[]>(`${SERVICES.USER}/logopedista/${userId}/preferiti`).catch(() => [])
-    ]);
+    const activities = await apiGet<any[]>(`${SERVICES.CATALOG}/accessibilita/true`);
+    const preferiti = userId
+      ? await apiGet<any[]>(`${SERVICES.USER}/logopedista/${userId}/preferiti`).catch(() => [])
+      : [];
 
     const preferitiIds = new Set(preferiti.map((p: any) => p.attivitaId || p.id));
 
@@ -98,9 +98,13 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
       mapped = mapped.filter(a => a.fasciaEta <= age);
     }
     if (pathologies && pathologies.length > 0) {
-      mapped = mapped.filter(a => 
-        pathologies.some(p => a.patologie?.toLowerCase().includes(p.toLowerCase()))
-      );
+      mapped = mapped.filter(a => {
+        const itemPathologies = Array.isArray(a.patologie)
+          ? a.patologie.join(' ').toLowerCase()
+          : String(a.patologie || '').toLowerCase();
+
+        return pathologies.some((p) => itemPathologies.includes(p.toLowerCase()));
+      });
     }
 
     return filter === 'preferiti' ? mapped.filter(a => a.isFavorite) : mapped;
@@ -134,7 +138,7 @@ export async function fetchActivityById(id: string): Promise<ActivityDetail | nu
 
 export async function fetchAssignedExercises(patientCf: string, query: string = '', filter: string = 'tutti'): Promise<AssignedExercise[]> {
   try {
-    let exercises = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${patientCf}/esercizi`);
+    const exercises = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${patientCf}/esercizi`);
     
     let mapped = exercises.map(e => ({
       id: e.id,
@@ -157,7 +161,7 @@ export async function fetchAssignedExercises(patientCf: string, query: string = 
     return mapped;
   } catch (error) {
     console.error('API Error:', error);
-    throw new Error('Impossibile recuperare gli esercizi assegnati.');
+    return [];
   }
 }
 

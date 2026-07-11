@@ -57,13 +57,13 @@ export default async function Page({
     const userData = JSON.parse(userCookie.value);
     
     // Verifica di autorizzazione: l'utente deve essere un logopedista con P.IVA
-    if (userData.ruolo !== 'logopedista' || !userData.utente?.pIva) {
+    if (userData.ruolo !== 'logopedista' || !(userData.utente?.pIva || userData.utente?.PIva || userData.utente?.codice)) {
       // Se non è un logopedista autorizzato, reindirizza alla dashboard generica
       redirect('/dashboard'); 
     }
 
     // Salva la P.IVA reale dell'utente loggato
-    userId = userData.utente.pIva;
+    userId = userData.utente.pIva || userData.utente.PIva || userData.utente.codice;
 
   } catch (error) {
     // Se il cookie è malformato o non parsabile, reindirizza al login
@@ -72,7 +72,13 @@ export default async function Page({
 
   // 2. RECUPERO DATI DAL DB USANDO L'ID REALE
   // Chiama la funzione fetchActivities con la P.IVA del logopedista, il termine di ricerca e il filtro
-  const activities = await fetchActivities(userId, query, filter);
+  let activities = [] as Awaited<ReturnType<typeof fetchActivities>>;
+
+  try {
+    activities = await fetchActivities(userId, query, filter);
+  } catch (error) {
+    console.error('Errore caricamento materiali del logopedista:', error);
+  }
 
   return (
     // Container principale: sfondo bianco, padding responsivo

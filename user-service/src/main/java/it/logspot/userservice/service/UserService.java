@@ -210,7 +210,7 @@ public class UserService {
     public void assignPatient(String pazienteId,
                               String logopedistaId){
 
-        Paziente paziente = pazienteRepository.findById(pazienteId)
+        Paziente paziente = pazienteRepository.findByCf(pazienteId)
                 .orElseThrow(() ->
                         new UserNotFoundException("Paziente non trovato"));
 
@@ -222,7 +222,7 @@ public class UserService {
 
     public void unassignPatient(String pazienteId){
 
-        Paziente paziente = pazienteRepository.findById(pazienteId)
+        Paziente paziente = pazienteRepository.findByCf(pazienteId)
                 .orElseThrow(() ->
                         new UserNotFoundException("Paziente non trovato"));
 

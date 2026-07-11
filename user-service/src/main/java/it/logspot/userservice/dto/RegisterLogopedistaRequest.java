@@ -1,5 +1,7 @@
 package it.logspot.userservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -29,6 +31,8 @@ public class RegisterLogopedistaRequest {
     private String password;
 
     @NotBlank(message = "La Partita IVA è obbligatoria")
+    @JsonProperty("pIva")
+    @JsonAlias({"PIva", "piva"})
     private String pIva;
 
 }

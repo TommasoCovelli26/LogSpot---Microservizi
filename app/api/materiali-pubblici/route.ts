@@ -30,12 +30,6 @@ export async function GET(req: Request) {
   // Legge il parametro patologie dalla query string (opzionale, stringa con valori separati da virgola)
   const pathologiesParam = searchParams.get('pathologies');
 
-  // Validazione: verifica che la P.IVA sia presente
-  if (!pIva) {
-    // Restituisce errore 401 se il logopedista non è autenticato
-    return NextResponse.json({ error: 'Logopedista non autenticato' }, { status: 401 });
-  }
-
   // Converte il parametro età da stringa a numero (undefined se non fornito)
   const age = ageParam ? Number(ageParam) : undefined;
   // Converte il parametro patologie da stringa CSV a array di stringhe (undefined se non fornito)
@@ -46,7 +40,7 @@ export async function GET(req: Request) {
 
   try {
     // Chiama la funzione fetchPublicActivities passando tutti i parametri estratti
-    const activities = await fetchPublicActivities(pIva, query, filter, age, pathologies);
+    const activities = await fetchPublicActivities(pIva || '', query, filter, age, pathologies);
     // Restituisce l'oggetto con l'array delle attività come risposta JSON
     return NextResponse.json({ activities });
   } catch (error) {
