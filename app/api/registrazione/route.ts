@@ -40,12 +40,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Registrazione avvenuta con successo" });
   } catch (error: any) {
     console.error("Errore registrazione API:", error);
-    
-    // Se il microservizio lancia una EmailAlreadyExistsException, dovrebbe tornare un 409
-    // Gestiamo il fallback con un 500 generico per sicurezza
+
     return NextResponse.json(
-      { error: "Errore del server o email già registrata" },
-      { status: 500 }
+        {
+            message: error.message,
+            status: error.status,
+            response: error.response,
+            stack: error.stack
+        },
+        {
+            status: error.status ?? 500
+        }
     );
-  }
+}
 }

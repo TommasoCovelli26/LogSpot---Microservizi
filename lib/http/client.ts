@@ -39,16 +39,42 @@ export async function apiGet<T>(url: string): Promise<T> {
 
 export async function apiPost<T>(url: string, body: unknown): Promise<T> {
   const headers = await getAuthHeaders();
+
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers,
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    throw new Error(`Errore HTTP ${response.status}`);
+
+    let errorBody: any = null;
+
+    try {
+      errorBody = await response.json();
+    } catch {
+      errorBody = await response.text();
+    }
+
+    throw {
+      status: response.status,
+      message: `Errore HTTP ${response.status}`,
+      response: errorBody,
+    };
   }
-  return response.json();
+
+  // Gestione delle risposte senza body
+  if (response.status === 201 || response.status === 204) {
+    return {} as T;
+  }
+
+  const text = await response.text();
+
+  if (text.trim().length === 0) {
+    return {} as T;
+  }
+
+  return JSON.parse(text);
 }
 
 export async function apiPut<T>(url: string, body: unknown): Promise<T> {
@@ -67,20 +93,20 @@ export async function apiPut<T>(url: string, body: unknown): Promise<T> {
 
 export async function apiDelete<T>(url: string): Promise<T> {
   const headers = await getAuthHeaders();
+
   const response = await fetch(url, {
-    method: 'DELETE',
+    method: "DELETE",
     headers,
   });
 
   if (!response.ok) {
     throw new Error(`Errore HTTP ${response.status}`);
   }
-  // Se la risposta è 204 No Content, non facciamo il parse del JSON
+
   if (response.status === 204) {
     return {} as T;
   }
-  
-  // Alcune delete restituiscono JSON, altre nulla, usiamo un try-catch
+
   try {
     return await response.json();
   } catch {

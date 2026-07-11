@@ -39,7 +39,7 @@ services:
       # Connessione al vostro MongoDB Atlas in Cloud
       SPRING_DATA_MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
       # Stringa di Azure Service Bus
-      SPRING_CLOUD_AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
+      AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
     restart: unless-stopped
     networks:
       - logspot-network
@@ -55,7 +55,6 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_DATA_MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
-      SPRING_CLOUD_AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
     restart: unless-stopped
     networks:
       - logspot-network
@@ -71,7 +70,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_DATA_MONGODB_URI: mongodb+srv://Tomm:pinopino@cluster0.cymdcty.mongodb.net/?retryWrites=true&w=majority
-      SPRING_CLOUD_AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
+      AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
     restart: unless-stopped
     networks:
       - logspot-network

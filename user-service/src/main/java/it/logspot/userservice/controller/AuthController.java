@@ -46,7 +46,6 @@ public class AuthController {
         authService.registerPaziente(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
-
     }
 
 }

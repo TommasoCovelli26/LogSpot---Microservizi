@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import it.logspot.userservice.mapper.UserMapper;
-import org.springframework.jms.core.JmsTemplate; // IMPORTANTE
+
 
 @Service
 public class UserService {
@@ -22,17 +22,18 @@ public class UserService {
     private final LogopedistaRepository logopedistaRepository;
     private final PazienteRepository pazienteRepository;
     private final UserMapper mapper;
-    private final JmsTemplate jmsTemplate;
+    private final ServiceBusPublisher serviceBusPublisher;
+
 
     public UserService(LogopedistaRepository logopedistaRepository,
                        PazienteRepository pazienteRepository,
                        UserMapper mapper,
-                       JmsTemplate jmsTemplate) {
+                       ServiceBusPublisher serviceBusPublisher) {
 
         this.logopedistaRepository = logopedistaRepository;
         this.pazienteRepository = pazienteRepository;
         this.mapper = mapper;
-        this.jmsTemplate = jmsTemplate;
+        this.serviceBusPublisher = serviceBusPublisher;
 
     }
 
@@ -46,7 +47,7 @@ public class UserService {
 
     public UserResponse getPaziente(String id){
 
-        Paziente p = pazienteRepository.findById(id)
+        Paziente p = pazienteRepository.findByCf(id)
                 .orElseThrow(() -> new UserNotFoundException("Paziente non trovato"));
 
         return mapper.toUserResponse(p);
@@ -133,8 +134,7 @@ public class UserService {
         System.out.println("Logopedista rimosso dal DB Users.");
 
         // Invia evento al Service Bus
-        jmsTemplate.convertAndSend(
-                "logspot-events",
+        serviceBusPublisher.publish(
                 "LOGOPEDISTA_DELETED:" + id
         );
 
@@ -152,7 +152,7 @@ public class UserService {
         System.out.println("Paziente rimosso dal DB Users.");
 
         // Invia il messaggio ad Azure
-        jmsTemplate.convertAndSend("logspot-events", "PATIENT_DELETED:" + id);
+        serviceBusPublisher.publish("PATIENT_DELETED:" + id);
         System.out.println("📣 Evento PATIENT_DELETED inviato ad Azure!");
 
     }

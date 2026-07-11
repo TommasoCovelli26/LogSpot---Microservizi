@@ -25,7 +25,12 @@ public class RegisterPazienteRequest {
     @NotBlank(message = "Il codice fiscale è obbligatorio")
     private String cf;
 
-    @NotBlank(message = "Il logopedista è obbligatorio")
+    @NotBlank(message = "La data di nascita è obbligatoria")
+    private String dataNascita;
+
+    @NotBlank(message = "Il numero di telefono è obbligatorio")
+    private String numTelefono;
+
     private String logopedista;
 
 }

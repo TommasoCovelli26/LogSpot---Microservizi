@@ -39,11 +39,19 @@ export async function GET(req: Request) {
       email: utente.email,
       ruolo: session.ruolo,
     });
-  } catch (error) {
-    console.error("Errore API profilo (GET):", error);
+  } catch (error: any) {
+    console.error(error);
+
     return NextResponse.json(
-      { error: "Errore interno del server o utente non trovato" },
-      { status: 500 }
+      {
+        message: error.message,
+        status: error.status,
+        response: error.response,
+        stack: error.stack,
+      },
+      {
+        status: error.status ?? 500,
+      }
     );
   }
 }
