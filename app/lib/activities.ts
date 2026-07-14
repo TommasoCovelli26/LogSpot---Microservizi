@@ -16,7 +16,7 @@ export interface AssignedExercise {
   dataAssegnazione: string;
   statoCompletamento: string | null;
   esito: string | null;
-  id_attivita: number;
+  id_attivita: string | number;
 }
 
 export interface Comment {
@@ -135,7 +135,7 @@ export async function fetchActivityById(id: string): Promise<ActivityDetail | nu
 
 export async function fetchAssignedExercises(patientCf: string, query: string = '', filter: string = 'tutti'): Promise<AssignedExercise[]> {
   try {
-    let exercises = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${patientCf}/esercizi`);
+    const exercises = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${patientCf}/esercizi`);
     
     let mapped = exercises.map(e => ({
       id: e.id,
@@ -143,7 +143,7 @@ export async function fetchAssignedExercises(patientCf: string, query: string = 
       dataAssegnazione: e.dataAssegnazione,
       statoCompletamento: e.statoCompletamento,
       esito: e.esito,
-      id_attivita: e.attivitaId || e.id_attivita
+      id_attivita: e.attivita || e.attivitaId || e.id_attivita
     }));
 
     if (query.trim()) {

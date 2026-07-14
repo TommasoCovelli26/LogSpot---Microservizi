@@ -69,7 +69,7 @@ export default async function AssignPage({
         <div className="bg-white p-6 rounded-lg border border-gray-100">
           {/* Componente client per assegnare l'attività ai pazienti del logopedista */}
           {/* Riceve l'ID dell'attività (come stringa) e la lista dei pazienti */}
-          <AssignToPatient activityId={String(activity.cod)} patients={patients} />
+          <AssignToPatient activityId={id} patients={patients} />
         </div>
       </div>
     </main>

@@ -22,8 +22,8 @@ export async function GET(
     const assignedCFs = Array.from(
       new Set(
         exercises
-          .filter(e => e.attivitaId === id || e.id_attivita?.toString() === id)
-          .map(e => e.pazienteId || e.id_paziente)
+          .filter(e => String(e.attivita || e.attivitaId || e.id_attivita || '') === id)
+          .map(e => e.paziente || e.pazienteId || e.id_paziente)
           .filter(Boolean)
       )
     );

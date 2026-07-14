@@ -14,11 +14,11 @@ export async function GET(req: Request) {
   if (cf && pIva) {
     try {
       // Usiamo l'endpoint del therapy service per recuperare gli esercizi del paziente
-      let esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
+      const esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
       
       // Filtriamo lato frontend per assicurarci che siano quelli assegnati da questo specifico logopedista
-      let mapped = esercizi
-        .filter(e => e.logopedistaId === pIva || e.id_logopedista === pIva)
+      const mapped = esercizi
+        .filter(e => (e.logopedista || e.logopedistaId || e.id_logopedista) === pIva)
         .map((exercise) => ({
           id: exercise.id,
           titolo: exercise.titolo || 'Esercizio',
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
   // Modalità 2: Vista Paziente (recupera tutti gli esercizi del paziente con filtri)
   if (cf) {
     try {
-      let esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
+      const esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
       
       let mapped = esercizi.map(e => ({
         id: e.id,
@@ -48,7 +48,7 @@ export async function GET(req: Request) {
         dataAssegnazione: e.dataAssegnazione,
         statoCompletamento: e.statoCompletamento,
         esito: e.esito,
-        id_attivita: e.attivitaId || e.id_attivita
+        id_attivita: e.attivita || e.attivitaId || e.id_attivita
       }));
 
       // Applica i filtri di ricerca testuale

@@ -30,6 +30,16 @@ function normalizePathologies(input: unknown): string[] {
   return [];
 }
 
+function normalizeActivityId(activityId: string | number): string | null {
+  if (typeof activityId === 'number') {
+    if (!Number.isFinite(activityId)) return null;
+    return String(activityId);
+  }
+
+  const normalized = activityId.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 export async function toggleFavorite(activityId: number, isFavorite: boolean) {
   const userId = await getUserId();
   if (!userId) return { success: false, error: 'Utente non autenticato' };
@@ -53,7 +63,7 @@ export async function saveActivity(formData: any) {
   if (!userId) return { success: false, message: 'Devi essere loggato per salvare' };
 
   try {
-    await apiPost(`${SERVICES.CATALOG}`, {
+    const created = await apiPost<{ id?: string; cod?: string | number }>(`${SERVICES.CATALOG}`, {
       titolo: formData.titolo,
       descrizione: formData.descrizione,
       istruzioni: formData.obbiettivo,
@@ -66,7 +76,7 @@ export async function saveActivity(formData: any) {
     });
 
     revalidatePath('/logopedista/imieimateriali');
-    return { success: true, message: 'Attivita salvata!' };
+    return { success: true, message: 'Attivita salvata!', activityId: created.id ?? created.cod };
   } catch (error) {
     console.error('Errore API salvataggio attivita:', error);
     return { success: false, message: 'Errore nel salvataggio' };
@@ -95,15 +105,20 @@ export async function unassignPatient(cf: string) {
   }
 }
 
-export async function assignExerciseToPatient(patientCf: string, activityId: number) {
+export async function assignExerciseToPatient(patientCf: string, activityId: string | number) {
   const userId = await getUserId();
   if (!userId) return { success: false, message: 'Utente non loggato' };
+  const normalizedActivityId = normalizeActivityId(activityId);
+  if (!normalizedActivityId) {
+    return { success: false, message: "ID dell'attivita non valido" };
+  }
 
   try {
     await apiPost(`${SERVICES.THERAPY}/esercizi`, {
-      pazienteId: patientCf,
-      attivitaId: activityId.toString(),
-      logopedistaId: userId
+      paziente: patientCf,
+      attivita: normalizedActivityId,
+      logopedista: userId,
+      durata: 0
     });
 
     revalidatePath('/logopedista/lista-pazienti');
