@@ -61,6 +61,7 @@ export async function saveActivity(formData: any) {
       accessibilita: Boolean(formData.accessibilita),
       fasciaEta: Number(formData.fasciaEta || 0),
       patologie: normalizePathologies(formData.patologie),
+      creatore: userId,
       id_logopedista: userId
     });
 

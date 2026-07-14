@@ -54,7 +54,7 @@ export async function fetchActivities(userId: string, query: string = '', filter
 
     // 2. Mappa e filtra per utente
     let mapped = activities
-      .filter(a => a.id_logopedista === userId)
+      .filter(a => a.creatore === userId || a.id_logopedista === userId)
       .map(a => ({
         cod: Number(a.id || a.cod),
         titolo: a.titolo,
@@ -88,7 +88,8 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
       dataCreazione: a.dataCreazione || new Date().toISOString(),
       isFavorite: preferitiIds.has(String(a.id || a.cod)),
       fasciaEta: a.fasciaEta,
-      patologie: a.patologie
+      patologie: a.patologie,
+      id_logopedista: a.creatore || a.id_logopedista || ''
     }));
 
     if (query.trim()) {
@@ -122,7 +123,7 @@ export async function fetchActivityById(id: string): Promise<ActivityDetail | nu
       accessibilita: Boolean(data.accessibilita),
       fasciaEta: Number(data.fasciaEta || 0),
       patologie: Array.isArray(data.patologie) ? data.patologie.join(',') : (data.patologie || ''),
-      id_logopedista: data.id_logopedista || '',
+      id_logopedista: data.creatore || data.id_logopedista || '',
       nome_logopedista: data.nome_logopedista,
       cognome_logopedista: data.cognome_logopedista,
     };
