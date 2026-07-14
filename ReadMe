@@ -15,10 +15,9 @@
 5. [Comunicazione Event-Driven (Azure Service Bus)](#5-comunicazione-event-driven-azure-service-bus)
 6. [Stack Tecnologico](#6-stack-tecnologico)
 7. [Funzionalità Operative del Sistema](#7-funzionalità-operative-del-sistema)
-8. [Test d'Uso (Scenari per Ruolo)](#8-test-duso-scenari-per-ruolo)
-9. [Guida all'Installazione (Local e Cloud Setup)](#9-guida-allinstallazione-local--cloud-setup)
-10. [Risoluzione Problemi (Troubleshooting)](#10-risoluzione-problemi-troubleshooting)
-11. [File di Setup](#11-file-di-setup)
+8. [Guida all'Installazione (Local e Cloud Setup)](#9-guida-allinstallazione-local--cloud-setup)
+9. [Risoluzione Problemi (Troubleshooting)](#10-risoluzione-problemi-troubleshooting)
+10. [File di Setup](#11-file-di-setup)
 
 ---
 
@@ -257,22 +256,12 @@ L'intero frontend è sviluppato secondo il paradigma **Mobile-First / Responsive
 
 ---
 
-## 8. Test d'Uso (Scenari per Ruolo)
-
-
-
-### 8.1 Test d'Abuso
-
-
-
----
-
-## 9. Guida all'Installazione (Local & Cloud Setup)
+## 8. Guida all'Installazione (Local & Cloud Setup)
 
 **Prerequisiti di Sistema:** **Docker** e **Docker Compose** installati e in esecuzione sul sistema host.
 * **Java 21** e **Node.js 20+** (necessari solo per l'avvio e lo sviluppo in modalità manuale senza Docker).
 
-### 9.1 Prerequisiti Cloud (MongoDB Atlas e Azure)
+### 8.1 Prerequisiti Cloud (MongoDB Atlas e Azure)
 Essendo LogSpot un'applicazione *Cloud-Native*, i servizi di persistenza e messaggistica non girano in locale, ma si appoggiano a infrastrutture cloud. Prima di avviare il codice, è necessario preparare gli ambienti esterni:
 
 1. **MongoDB Atlas (Database):**
@@ -282,7 +271,7 @@ Essendo LogSpot un'applicazione *Cloud-Native*, i servizi di persistenza e messa
    * Verificare che la risorsa su Azure sia configurata con il piano tariffario **Standard** (il piano Basic non supporta i *Topic* necessari per l'eliminazione a cascata).
    * Generare e copiare la *Stringa di connessione primaria* (Primary Connection String).
 
-### 9.2 Configurazione delle Variabili d'Ambiente (Security)
+### 8.2 Configurazione delle Variabili d'Ambiente (Security)
 Per evitare il rischio di *Secret Sprawl* (chiavi caricate per errore su GitHub), le credenziali di Azure vengono iniettate dinamicamente nei container all'avvio tramite variabili d'ambiente.
 
 1. Creare un file vuoto chiamato esattamente **`.env`** nella directory principale (root) del progetto (allo stesso livello del file `docker-compose.yml`).
@@ -292,7 +281,7 @@ Per evitare il rischio di *Secret Sprawl* (chiavi caricate per errore su GitHub)
    ```
 *(Nota: Il file `.env` è già ignorato da Git grazie alle regole configurate nel `.gitignore` del progetto).*
 
-### 9.3 Avvio dell'Ecosistema tramite Docker Compose
+### 8.3 Avvio dell'Ecosistema tramite Docker Compose
 L'intera architettura (Frontend, Gateway, Service Registry e i 3 Microservizi) è orchestrata da un singolo file `docker-compose.yml` che ne gestisce le dipendenze strutturali.
 
 Aprire il terminale nella root del progetto e lanciare:
@@ -307,7 +296,7 @@ Data la natura asincrona dei microservizi, il sistema necessita di circa **1-2 m
 3. `gateway-service` interroga Eureka, mappa le rotte e si mette in ascolto sulla porta 8080.
 4. Il frontend `logspot-web` si avvia e si collega al Gateway.
 
-### 9.4 Mappatura delle Porte e Punti di Accesso
+### 8.4 Mappatura delle Porte e Punti di Accesso
 Una volta che i container sono nello stato "Running", l'infrastruttura espone i seguenti punti di accesso sul `localhost` dell'host:
 
 | Servizio | URL Accesso | Funzione / Ruolo |
@@ -316,7 +305,7 @@ Una volta che i container sono nello stato "Running", l'infrastruttura espone i 
 | **Eureka Dashboard** | `http://localhost:8761` | Console di monitoraggio. Mostra lo stato *UP* dei microservizi registrati. |
 | **API Gateway** | `http://localhost:8080` | Entrypoint delle API. *(Normalmente non richiamato direttamente dall'utente, ma dal client HTTP del frontend)*. |
 
-### 9.5 Creazione Credenziali e Test Iniziale
+### 8.5 Creazione Credenziali e Test Iniziale
 A differenza dei classici gestionali, LogSpot non fornisce un utente "admin" pre-caricato. Per iniziare a testare la piattaforma:
 
 1. Navigare su `http://localhost:3000` e cliccare su **"Registrati"** (o navigare su `/registrazione`).
@@ -325,7 +314,7 @@ A differenza dei classici gestionali, LogSpot non fornisce un utente "admin" pre
 4. Effettuare il **Login**. Il JWT verrà generato dallo `user-service` e iniettato nei cookie HTTP-Only.
 5. Dal pannello di controllo, sarà possibile creare nuovi materiali (salvati sul `catalog-service`) e registrare nuovi pazienti per testare l'assegnazione delle terapie e il flusso asincrono tramite Service Bus.
 
-### 9.6 Sviluppo e Avvio Manuale (Hot Reload)
+### 8.6 Sviluppo e Avvio Manuale (Hot Reload)
 Se si desidera sviluppare e vedere le modifiche in tempo reale senza dover ricostruire i container Docker:
 1. Spegnere i container in esecuzione: `docker-compose down`
 2. **Frontend:** Aprire il terminale nella root, eseguire `npm install` e poi `npm run dev`.
@@ -336,7 +325,7 @@ Se si desidera sviluppare e vedere le modifiche in tempo reale senza dover ricos
 
 ---
 
-## 10. Risoluzione Problemi (Troubleshooting)
+## 9. Risoluzione Problemi (Troubleshooting)
 
 In caso di difficoltà durante l'avvio o l'utilizzo della piattaforma in ambiente locale, consultare la seguente tabella:
 
@@ -349,7 +338,7 @@ In caso di difficoltà durante l'avvio o l'utilizzo della piattaforma in ambient
 
 ---
 
-## 11. File di Setup
+## 10. File di Setup
 
 In caso si voglia visionare o seguire step by step le procedure di installazione sui vari sistemi operativi (*Windows*, *Linux*, *MacOs*), si può trovare la relativa guida nei corrispettivi file situati nella root del progetto:
 
