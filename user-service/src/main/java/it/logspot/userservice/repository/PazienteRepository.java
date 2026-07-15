@@ -22,6 +22,5 @@ public interface PazienteRepository extends MongoRepository<Paziente, String> {
 
     List<Paziente> findByLogopedistaIsNull();
 
-    List<Paziente> findByLogopedista_PIva(String pIva);
 
 }

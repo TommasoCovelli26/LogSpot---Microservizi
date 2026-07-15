@@ -1,8 +1,16 @@
 node_modules
 .next
+catalog-service/
+eureka-server/
+gateway-service/
+therapy-service/
+user-service/
+.mvn/
+docs/
 .git
 .hintrc
 README.md
+README_Azure.txt
 Dockerfile
 docker-compose.yml
 .env*.local

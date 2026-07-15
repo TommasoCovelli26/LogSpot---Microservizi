@@ -58,7 +58,7 @@ export default async function PublicActivityDetailPage({
   // Parsing dei dati utente dal cookie (oggetto vuoto come fallback)
   const userData = userCookie ? JSON.parse(userCookie.value) : {};
   // Estrae la P.IVA dell'utente corrente (per i commenti)
-  const currentPiva = userData.utente?.pIva || '';
+  const currentPiva = userData.utente?.pIva || userData.utente?.PIva || userData.utente?.codice || '';
 
   // Splitta la stringa delle patologie in un array (separate da virgola)
   const patologieList = activity.patologie ? activity.patologie.split(',') : [];
@@ -101,7 +101,7 @@ export default async function PublicActivityDetailPage({
         {/* COLONNA SINISTRA: descrizione e obiettivo terapeutico */}
         <div className="lg:col-span-2 space-y-8">
           {/* Card descrizione con barra decorativa gialla laterale */}
-          <div className="bg-white rounded-[2rem] p-8 border-2 border-gray-100 shadow-sm relative overflow-hidden">
+          <div className="bg-white rounded-4xl p-8 border-2 border-gray-100 shadow-sm relative overflow-hidden">
             {/* Barra decorativa verticale gialla */}
             <div className="absolute top-0 left-0 w-2 h-full bg-yellow-400"></div>
             {/* Titolo sezione: Descrizione */}

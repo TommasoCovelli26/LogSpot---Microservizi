@@ -37,6 +37,8 @@ public class RegistrationService {
         logopedista.setNome(request.getNome());
         logopedista.setCognome(request.getCognome());
         logopedista.setEmail(request.getEmail());
+        logopedista.setDataNascita(request.getDataNascita());
+        logopedista.setNumTelefono(request.getNumTelefono());
         logopedista.setPassword(
                 passwordEncoder.encode(request.getPassword())
         );
@@ -60,6 +62,8 @@ public class RegistrationService {
                 passwordEncoder.encode(request.getPassword())
         );
         paziente.setCf(request.getCf());
+        paziente.setDataNascita(request.getDataNascita());
+        paziente.setNumTelefono(request.getNumTelefono());
         paziente.setLogopedista(request.getLogopedista());
 
         pazienteRepository.save(paziente);

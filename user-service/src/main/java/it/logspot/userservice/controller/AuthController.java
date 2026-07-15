@@ -33,10 +33,12 @@ public class AuthController {
     public ResponseEntity<Void> registerLogopedista(
             @Valid @RequestBody RegisterLogopedistaRequest request) {
 
+        System.out.println("=== SONO NEL CONTROLLER ===");
+        System.out.println("PIVA = " + request.getPIva());
+
         authService.registerLogopedista(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
-
     }
 
     @PostMapping("/register/paziente")
@@ -46,7 +48,6 @@ public class AuthController {
         authService.registerPaziente(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
-
     }
 
 }

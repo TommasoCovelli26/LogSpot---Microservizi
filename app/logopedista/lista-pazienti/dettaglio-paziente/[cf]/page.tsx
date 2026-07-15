@@ -42,7 +42,12 @@ export default async function Page({ params }: { params: Promise<{ cf: string }>
   }
 
   // Recupera la lista degli esercizi assegnati a questo paziente
-  const exercises = await fetchAssignedExercises(cf);
+  let exercises: any[] = [];
+  try {
+    exercises = await fetchAssignedExercises(cf);
+  } catch (error) {
+    console.error('Errore recupero esercizi paziente:', error);
+  }
 
   return (
     // Container principale: sfondo bianco, padding responsivo

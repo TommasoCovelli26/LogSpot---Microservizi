@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 # Usa un'immagine di Node.js ottimizzata (versione 20, ottima per Next.js)
 FROM node:20-alpine AS base
 
@@ -12,7 +14,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 # Copiamo i file di configurazione dei pacchetti
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile
 
 # ---- FASE 2: Compilazione (Build) ----
 FROM base AS builder

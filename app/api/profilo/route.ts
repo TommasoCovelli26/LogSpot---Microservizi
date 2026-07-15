@@ -3,6 +3,21 @@ import { cookies } from "next/headers";
 import { apiGet, apiPut } from "../../../lib/http/client";
 import { SERVICES } from "../../../lib/config/services";
 
+function formatItalianDate(value: string | null | undefined) {
+  if (!value) return null;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('it-IT', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+}
+
 /**
  * Funzione di utilità per estrarre l'ID e il ruolo dal cookie
  */
@@ -13,14 +28,15 @@ async function getSession() {
 
   try {
     const userData = JSON.parse(userCookie.value);
-    const id = userData.ruolo === "logopedista" ? userData.utente.pIva : userData.utente.cf;
+    // MODIFICA QUI: L'oggetto utente nel token ha solo il campo "id" unificato da MongoDB
+    const id = userData.utente.id; 
     return { id, ruolo: userData.ruolo };
   } catch {
     return null;
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getSession();
     
@@ -34,16 +50,26 @@ export async function GET(req: Request) {
     return NextResponse.json({
       nome: utente.nome,
       cognome: utente.cognome,
-      dataNascita: utente.dataNascita ? new Date(utente.dataNascita).toISOString() : null,
+      dataNascita: formatItalianDate(utente.dataNascita),
       numTelefono: utente.numTelefono ?? null,
       email: utente.email,
+      pIva: utente.pIva ?? null,
+      cf: utente.cf ?? null,
       ruolo: session.ruolo,
     });
-  } catch (error) {
-    console.error("Errore API profilo (GET):", error);
+  } catch (error: any) {
+    console.error(error);
+
     return NextResponse.json(
-      { error: "Errore interno del server o utente non trovato" },
-      { status: 500 }
+      {
+        message: error.message,
+        status: error.status,
+        response: error.response,
+        stack: error.stack,
+      },
+      {
+        status: error.status ?? 500,
+      }
     );
   }
 }

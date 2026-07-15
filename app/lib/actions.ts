@@ -12,7 +12,7 @@ async function getUserId() {
   if (!userCookie) return null;
   try {
     const userData = JSON.parse(userCookie.value);
-    return userData.utente?.pIva || null;
+    return userData.utente?.pIva || userData.utente?.PIva || userData.utente?.codice || null;
   } catch {
     return null;
   }
@@ -58,17 +58,21 @@ export async function saveActivity(formData: any) {
       descrizione: formData.descrizione,
       istruzioni: formData.obbiettivo,
       immagini: normalizeImages(formData.immagine),
-      accessibilita: Boolean(formData.accessibilita),
       fasciaEta: Number(formData.fasciaEta || 0),
+      accessibilita: Boolean(formData.accessibilita),
       patologie: normalizePathologies(formData.patologie),
-      id_logopedista: userId
+      creatore: userId,
+      id_logopedista: userId,
     });
 
     revalidatePath('/logopedista/imieimateriali');
     return { success: true, message: 'Attivita salvata!' };
   } catch (error) {
     console.error('Errore API salvataggio attivita:', error);
-    return { success: false, message: 'Errore nel salvataggio' };
+    const message = typeof error === 'object' && error && 'response' in error
+      ? `Errore nel salvataggio: ${JSON.stringify((error as any).response)}`
+      : 'Errore nel salvataggio';
+    return { success: false, message };
   }
 }
 
@@ -79,6 +83,7 @@ export async function assignPatientToLogopedist(cf: string, pIva: string) {
     revalidatePath('/logopedista/lista-pazienti');
     return { success: true };
   } catch (error) {
+    console.error("Errore nell'assegnazione del paziente:", error);
     return { success: false, error: "Errore nell'assegnazione del paziente tramite API" };
   }
 }

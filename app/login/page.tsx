@@ -65,7 +65,7 @@ export default function LoginPage() {
           ruolo: data.ruolo,
           codice:
             data.ruolo === "logopedista"
-              ? data.utente.pIva
+              ? (data.utente.pIva ?? data.utente.PIva)
               : data.utente.cf,
         })
 

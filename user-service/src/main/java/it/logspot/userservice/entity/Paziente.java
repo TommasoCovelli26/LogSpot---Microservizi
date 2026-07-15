@@ -21,6 +21,10 @@ public class Paziente {
 
     private String cognome;
 
+    private String dataNascita;
+
+    private String numTelefono;
+
     private String email;
 
     private String password;

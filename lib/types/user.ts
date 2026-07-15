@@ -13,6 +13,10 @@ export interface User {
 
   ruolo: "logopedista" | "paziente";
 
+  pIva?: string;
+
+  cf?: string;
+
 }
 
 /**

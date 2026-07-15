@@ -76,7 +76,7 @@ function PageContent() {
     try {
       // Parsing dei dati utente e estrazione della P.IVA
       const utenteObj = JSON.parse(sessione);
-      setPIva(utenteObj.codice);
+      setPIva(utenteObj.codice ?? utenteObj.pIva ?? utenteObj.PIva ?? null);
     } catch (e) {
       console.error('Errore parsing sessione:', e);
       // In caso di errore nel parsing, reindirizza al login
