@@ -38,10 +38,12 @@ export default async function AssignPage({
   const userCookie = cookieStore.get('utente');
   // Variabile per memorizzare l'ID del logopedista
   let logopedistaId = '';
+  let logopedistaRealId = '';
   // Se il cookie esiste, estrae la P.IVA dal JSON
   if (userCookie) {
      const userData = JSON.parse(userCookie.value);
      logopedistaId = userData.utente?.pIva || '';
+     logopedistaRealId = userData.utente?.id || userData.utente?._id || logopedistaId;
   }
 
   // Recupera i pazienti tramite il layer MongoDB
@@ -69,7 +71,7 @@ export default async function AssignPage({
         <div className="bg-white p-6 rounded-lg border border-gray-100">
           {/* Componente client per assegnare l'attività ai pazienti del logopedista */}
           {/* Riceve l'ID dell'attività (come stringa) e la lista dei pazienti */}
-          <AssignToPatient activityId={id} patients={patients} />
+          <AssignToPatient activityId={id} patients={patients} logopedistaId={logopedistaRealId} />
         </div>
       </div>
     </main>

@@ -25,6 +25,7 @@ interface Patient {
 interface Props {
   activityId: number | string;  // Accetta sia numeri che stringhe per compatibilità
   patients: Patient[];           // Lista dei pazienti del logopedista (obbligatoria)
+  logopedistaId: string;         // ID reale (Mongo) del logopedista loggato
 }
 
 /**
@@ -33,7 +34,7 @@ interface Props {
  * già esistenti tramite API e permette di assegnare con un click.
  * Viene riutilizzato sia dalla sezione "I miei materiali" che da "Ricerca materiali".
  */
-export default function AssignToPatient({ activityId, patients }: Props) {
+export default function AssignToPatient({ activityId, patients, logopedistaId }: Props) {
   // Hook per la navigazione programmatica e il refresh della pagina
   const router = useRouter();
   // Stato per il termine di ricerca nella barra di filtro pazienti
@@ -58,16 +59,10 @@ export default function AssignToPatient({ activityId, patients }: Props) {
      */
     const loadAssignedPatients = async () => {
       try {
-        // Recupera la sessione utente dal localStorage
-        const sessione = localStorage.getItem("utente");
-        if (!sessione) return;
-
-        // Estrae la P.IVA del logopedista dalla sessione
-        const utenteObj = JSON.parse(sessione);
-        const pIva = utenteObj.codice;
+        if (!logopedistaId) return;
 
         // Chiamata API per ottenere i CF dei pazienti già assegnati
-        const response = await fetch(`/api/esercizi/assign/${activityId}?pIva=${encodeURIComponent(pIva)}`);
+        const response = await fetch(`/api/esercizi/assign/${activityId}?pIva=${encodeURIComponent(logopedistaId)}`);
         if (response.ok) {
           const data = await response.json();
           // Costruisce un record/mappa con i CF già assegnati impostati a true
@@ -88,7 +83,7 @@ export default function AssignToPatient({ activityId, patients }: Props) {
 
     // Avvia il caricamento delle assegnazioni esistenti
     loadAssignedPatients();
-  }, [activityId]); // Si riesegue solo se cambia l'ID dell'attività
+  }, [activityId, logopedistaId]); // Si riesegue se cambia l'attività o l'id del logopedista
 
   // Effect: filtra la lista pazienti in base al termine di ricerca
   useEffect(() => {

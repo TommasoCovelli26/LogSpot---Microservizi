@@ -77,7 +77,7 @@ function PageContent() {
       // Parsing dei dati utente e estrazione della P.IVA
       // Parsing dei dati utente e estrazione dell'ID (priorità a MongoDB)
       const utenteObj = JSON.parse(sessione);
-      setPIva(utenteObj.id ?? utenteObj._id ?? utenteObj.codice ?? utenteObj.pIva ?? utenteObj.PIva ?? null);
+      setPIva(utenteObj.id ?? utenteObj.codice ?? utenteObj.pIva ?? utenteObj.PIva ?? null);
     } catch (e) {
       console.error('Errore parsing sessione:', e);
       // In caso di errore nel parsing, reindirizza al login

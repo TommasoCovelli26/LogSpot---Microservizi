@@ -21,24 +21,17 @@ public class Esercizio {
 
     private Integer durata;
 
-    @Field(targetType = FieldType.OBJECT_ID)
     private String attivita;
 
-    @Field(targetType = FieldType.OBJECT_ID)
     private String logopedista;
 
-    @Field(targetType = FieldType.OBJECT_ID)
     private String paziente;
 
     private Feedback feedback;
 
     @Data
     public static class Feedback {
-
         private String messaggio;
-
         private Date data;
-
     }
-
 }

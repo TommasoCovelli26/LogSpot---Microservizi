@@ -29,25 +29,18 @@ export default async function AssignMyMaterialPage({
   // Manteniamo l'id come stringa per la risoluzione tramite MongoDB
   const activityId = id;
 
-  // 1. Recupera la P.IVA del logopedista dai cookie HTTP
   const cookieStore = await cookies();
   const userCookie = cookieStore.get('utente');
-  // Variabile per memorizzare l'ID del logopedista
-  let logopedistaId = '';
-  
-  // Se il cookie esiste, estrae la P.IVA dal JSON
+  let logopedistaPiva = '';
+  let logopedistaRealId = '';
   if (userCookie) {
-     try {
-       const userData = JSON.parse(userCookie.value);
-       // Estrae la P.IVA dell'utente loggato
-       logopedistaId = userData.utente?.pIva || '';
-     } catch (e) {
-       console.error("Errore parsing cookie", e);
-     }
+    const userData = JSON.parse(userCookie.value);
+    logopedistaPiva = userData.utente?.pIva || userData.utente?.PIva || userData.utente?.codice || '';
+    logopedistaRealId = userData.utente?.id || userData.utente?._id || logopedistaPiva;
   }
 
-  // Recupera i pazienti tramite il layer MongoDB
-  const patients = await fetchPatients(logopedistaId);
+  // Recupera i pazienti usando la P.IVA (così vengono trovati quelli associati)
+  const patients = await fetchPatients(logopedistaPiva);
 
   // Recupera il dettaglio dell'attività tramite MongoDB
   const activity = await fetchActivityById(id);
@@ -77,7 +70,7 @@ export default async function AssignMyMaterialPage({
         <div className="bg-white p-6 rounded-lg border border-gray-100">
           {/* Componente riutilizzabile per assegnare l'attività ai pazienti */}
           {/* Riceve l'ID dell'attività e la lista dei pazienti del logopedista */}
-          <AssignToPatient activityId={activityId} patients={patients} />
+          <AssignToPatient activityId={activityId} patients={patients} logopedistaId={logopedistaRealId} />
         </div>
       </div>
     </main>

@@ -50,8 +50,6 @@ export async function fetchActivities(userId: string, query: string = '', filter
       apiGet<any[]>(`${SERVICES.USER}/logopedista/${userId}/preferiti`).catch(() => [])
     ]);
 
-    // LOG PER DEBUG: Così vediamo cosa manda esattamente il backend
-    console.log("PREFERITI RICEVUTI DAL BACKEND:", preferiti);
 
         // MAPPA ANTIPROIETTILE
     const preferitiIds = new Set(preferiti.map((p: any) => {
@@ -59,7 +57,6 @@ export async function fetchActivities(userId: string, query: string = '', filter
       // Nel tuo Java, il campo si chiama "attivita" (visto in removePreferito)
       const idTrovato = p.attivita || p.attivitaId || p.idAttivita || p.id || p._id;
       
-      console.log("Mappatura preferito:", p, "ID estratto:", idTrovato);
       return String(idTrovato);
     }));
 
@@ -91,8 +88,6 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
       ? await apiGet<any[]>(`${SERVICES.USER}/logopedista/${userId}/preferiti`).catch(() => [])
       : [];
 
-    // LOG PER DEBUG: Così vediamo cosa manda esattamente il backend
-    console.log("PREFERITI RICEVUTI DAL BACKEND:", preferiti);
 
         // MAPPA ANTIPROIETTILE
     const preferitiIds = new Set(preferiti.map((p: any) => {
@@ -100,7 +95,6 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
       // Nel tuo Java, il campo si chiama "attivita" (visto in removePreferito)
       const idTrovato = p.attivita || p.attivitaId || p.idAttivita || p.id || p._id;
       
-      console.log("Mappatura preferito:", p, "ID estratto:", idTrovato);
       return String(idTrovato);
     }));
 
@@ -162,15 +156,27 @@ export async function fetchActivityById(id: string): Promise<ActivityDetail | nu
 export async function fetchAssignedExercises(patientCf: string, query: string = '', filter: string = 'tutti'): Promise<AssignedExercise[]> {
   try {
     const exercises = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${patientCf}/esercizi`);
-    
-    let mapped = exercises.map(e => ({
-      id: e.id,
-      titolo: e.titolo || 'Esercizio',
-      dataAssegnazione: e.dataAssegnazione,
-      statoCompletamento: e.statoCompletamento,
-      esito: e.esito,
-      id_attivita: e.attivita || e.attivitaId || e.id_attivita
-    }));
+
+    // Recupera in parallelo i dettagli di ogni attività collegata dal catalog-service
+    let mapped: AssignedExercise[] = await Promise.all(
+      exercises.map(async (e) => {
+        const activityId = e.attivita || e.attivitaId || e.id_attivita;
+        let activityDetails: any = {};
+
+        if (activityId) {
+          activityDetails = await apiGet<any>(`${SERVICES.CATALOG}/${activityId}`).catch(() => ({}));
+        }
+
+        return {
+          id: e.id,
+          titolo: activityDetails.titolo || 'Esercizio',
+          dataAssegnazione: e.dataAssegnazione,
+          statoCompletamento: e.statoCompletamento,
+          esito: e.esito,
+          id_attivita: activityId,
+        };
+      })
+    );
 
     if (query.trim()) {
       mapped = mapped.filter(e => e.titolo.toLowerCase().includes(query.toLowerCase()));

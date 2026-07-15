@@ -158,14 +158,10 @@ public class UserService {
     }
 
     public List<Preferito> getPreferiti(String id) {
-        System.out.println("DEBUG - Cerco preferiti per ID logopedista: '" + id + "'");
         
         Logopedista logopedista = logopedistaRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Logopedista non trovato con ID: " + id));
-        
-        System.out.println("DEBUG - Logopedista trovato: " + logopedista.getId());
-        System.out.println("DEBUG - Numero preferiti in lista: " + (logopedista.getPreferiti() != null ? logopedista.getPreferiti().size() : "NULL"));
-        
+         
         return logopedista.getPreferiti() != null ? logopedista.getPreferiti() : new ArrayList<>();
     }
 
