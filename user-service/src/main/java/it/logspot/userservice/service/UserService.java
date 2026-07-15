@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import it.logspot.userservice.exception.UserNotFoundException;
 import it.logspot.userservice.entity.Preferito;
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import it.logspot.userservice.mapper.UserMapper;
@@ -157,14 +157,16 @@ public class UserService {
 
     }
 
-    public List<Preferito> getPreferiti(String logopedistaId){
-
-        Logopedista logopedista = logopedistaRepository.findById(logopedistaId)
-                .orElseThrow(() ->
-                        new UserNotFoundException("Logopedista non trovato"));
-
-        return logopedista.getPreferiti();
-
+    public List<Preferito> getPreferiti(String id) {
+        System.out.println("DEBUG - Cerco preferiti per ID logopedista: '" + id + "'");
+        
+        Logopedista logopedista = logopedistaRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Logopedista non trovato con ID: " + id));
+        
+        System.out.println("DEBUG - Logopedista trovato: " + logopedista.getId());
+        System.out.println("DEBUG - Numero preferiti in lista: " + (logopedista.getPreferiti() != null ? logopedista.getPreferiti().size() : "NULL"));
+        
+        return logopedista.getPreferiti() != null ? logopedista.getPreferiti() : new ArrayList<>();
     }
 
     public void addPreferito(String logopedistaId,

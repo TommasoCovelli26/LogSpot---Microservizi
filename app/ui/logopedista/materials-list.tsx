@@ -34,7 +34,7 @@ export default function MaterialsList({
 }: {
   activities: ActivityWithFavorite[];
   baseHref?: string;
-  onFavoriteChange?: (cod: number, isFavorite: boolean) => void;
+  onFavoriteChange?: (id: string, isFavorite: boolean) => void;
 }) {
   return (
     // Container principale della tabella con bordo e ombra
@@ -52,14 +52,14 @@ export default function MaterialsList({
           activities.map((act) => (
             // Container riga: div esterno per separare cuore e link
             <div 
-              key={act.cod} 
+              key={act.id} 
               className="flex items-center hover:bg-yellow-50 transition-colors group relative"
             >
               
               {/* Cuore preferiti: posizionato fuori dal Link per evitare conflitti di click */}
               <div className="pl-6 pr-2 z-10">
                   <FavoriteHeart
-                   cod={act.cod}
+                   id={act.id}
                    initialStatus={act.isFavorite}
                    onToggle={onFavoriteChange}
                   />
@@ -67,7 +67,7 @@ export default function MaterialsList({
 
               {/* Link al dettaglio: avvolge solo titolo e data, riempie il resto della riga */}
               <Link 
-                href={`${baseHref}/${act.cod}`}
+                href={`${baseHref}/${act.id}`}
                 className="flex-1 flex justify-between items-center py-4 pr-6 pl-2"
               >
                   {/* Titolo dell'attività con font Lusitana */}

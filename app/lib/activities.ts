@@ -4,7 +4,7 @@ import { apiGet } from '../../lib/http/client';
 import { SERVICES } from '../../lib/config/services';
 
 export interface ActivityWithFavorite {
-  cod: number;
+  id: string;
   titolo: string;
   dataCreazione: string;
   isFavorite: boolean;
@@ -20,7 +20,7 @@ export interface AssignedExercise {
 }
 
 export interface Comment {
-  cod: number;
+  id: string;
   messaggio: string;
   data: string;
   id_logopedista: string;
@@ -29,7 +29,7 @@ export interface Comment {
 }
 
 export interface ActivityDetail {
-  cod: number;
+  id: string;
   titolo: string;
   descrizione: string;
   istruzioni: string;
@@ -50,13 +50,24 @@ export async function fetchActivities(userId: string, query: string = '', filter
       apiGet<any[]>(`${SERVICES.USER}/logopedista/${userId}/preferiti`).catch(() => [])
     ]);
 
-    const preferitiIds = new Set(preferiti.map((p: any) => p.attivitaId || p.id));
+    // LOG PER DEBUG: Così vediamo cosa manda esattamente il backend
+    console.log("PREFERITI RICEVUTI DAL BACKEND:", preferiti);
+
+        // MAPPA ANTIPROIETTILE
+    const preferitiIds = new Set(preferiti.map((p: any) => {
+      // Se p è un oggetto, cerchiamo il campo che contiene l'ID. 
+      // Nel tuo Java, il campo si chiama "attivita" (visto in removePreferito)
+      const idTrovato = p.attivita || p.attivitaId || p.idAttivita || p.id || p._id;
+      
+      console.log("Mappatura preferito:", p, "ID estratto:", idTrovato);
+      return String(idTrovato);
+    }));
 
     // 2. Mappa e filtra per utente
     let mapped = activities
       .filter(a => a.creatore === userId || a.id_logopedista === userId)
       .map(a => ({
-        cod: Number(a.id || a.cod),
+        id: String(a.id),
         titolo: a.titolo,
         dataCreazione: a.dataCreazione || new Date().toISOString(),
         isFavorite: preferitiIds.has(String(a.id || a.cod))
@@ -80,10 +91,21 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
       ? await apiGet<any[]>(`${SERVICES.USER}/logopedista/${userId}/preferiti`).catch(() => [])
       : [];
 
-    const preferitiIds = new Set(preferiti.map((p: any) => p.attivitaId || p.id));
+    // LOG PER DEBUG: Così vediamo cosa manda esattamente il backend
+    console.log("PREFERITI RICEVUTI DAL BACKEND:", preferiti);
+
+        // MAPPA ANTIPROIETTILE
+    const preferitiIds = new Set(preferiti.map((p: any) => {
+      // Se p è un oggetto, cerchiamo il campo che contiene l'ID. 
+      // Nel tuo Java, il campo si chiama "attivita" (visto in removePreferito)
+      const idTrovato = p.attivita || p.attivitaId || p.idAttivita || p.id || p._id;
+      
+      console.log("Mappatura preferito:", p, "ID estratto:", idTrovato);
+      return String(idTrovato);
+    }));
 
     let mapped = activities.map(a => ({
-      cod: Number(a.id || a.cod),
+      id: String(a.id),
       titolo: a.titolo,
       dataCreazione: a.dataCreazione || new Date().toISOString(),
       isFavorite: preferitiIds.has(String(a.id || a.cod)),
@@ -119,7 +141,7 @@ export async function fetchActivityById(id: string): Promise<ActivityDetail | nu
   try {
     const data = await apiGet<any>(`${SERVICES.CATALOG}/${id}`);
     return {
-      cod: Number(data.id || data.cod),
+      id: String(data.id),
       titolo: data.titolo || '',
       descrizione: data.descrizione || '',
       istruzioni: data.istruzioni || '',
@@ -166,11 +188,11 @@ export async function fetchAssignedExercises(patientCf: string, query: string = 
   }
 }
 
-export async function fetchCommentsByActivityId(activityId: number): Promise<Comment[]> {
+export async function fetchCommentsByActivityId(activityId: string): Promise<Comment[]> {
   try {
     const comments = await apiGet<any[]>(`${SERVICES.CATALOG}/${activityId}/commenti`);
     return comments.map(c => ({
-      cod: c.id || c.cod,
+      id: String(c.id),
       messaggio: c.messaggio,
       data: c.data,
       id_logopedista: c.logopedistaId || c.id_logopedista,

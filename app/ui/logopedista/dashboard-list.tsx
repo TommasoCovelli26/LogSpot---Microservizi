@@ -46,20 +46,20 @@ export default function DashboardList({ activities }: { activities: ActivityWith
    * @param cod - Codice dell'attività
    * @param currentStatus - Stato attuale del preferito (true/false)
    */
-  const handleToggleHeart = async (cod: number, currentStatus: boolean) => {
+  const handleToggleHeart = async (id: string, currentStatus: boolean) => {
     // 1. Aggiornamento Ottimistico (Immediato sull'interfaccia)
     const newStatus = !currentStatus;
     // Aggiorna lo stato locale invertendo il flag isFavorite per l'attività specificata
     setLocalActivities((prev) => 
       prev.map((act) => 
-        act.cod === cod ? { ...act, isFavorite: newStatus } : act
+        act.id === id ? { ...act, isFavorite: newStatus } : act
       )
     );
 
     // 2. Aggiornamento Database (Server Action)
     try {
       // Invoca la server action per persistere la modifica nel database
-      await toggleFavorite(cod, newStatus);
+      await toggleFavorite(id, newStatus);
     } catch (e) {
       // Se fallisce, logga l'errore (potremmo anche annullare la modifica locale)
       console.error("Errore salvataggio preferito");
@@ -174,7 +174,7 @@ export default function DashboardList({ activities }: { activities: ActivityWith
           {filteredActivities.length > 0 ? (
             // Itera le attività filtrate e le renderizza come righe
             filteredActivities.map((act) => (
-              <div key={act.cod} className="flex justify-between items-center px-6 py-4 hover:bg-yellow-50 transition-colors group">
+              <div key={act.id} className="flex justify-between items-center px-6 py-4 hover:bg-yellow-50 transition-colors group">
                 {/* Colonna sinistra: icona cuore + nome attività */}
                 <div className="flex items-center gap-3">
                   {/* Pulsante cuore interattivo per toggle preferiti */}
@@ -182,7 +182,7 @@ export default function DashboardList({ activities }: { activities: ActivityWith
                     onClick={(e) => {
                         e.stopPropagation(); // Evita di cliccare la riga intera se aggiungi link
                         // Invoca il toggle del preferito con lo stato attuale
-                        handleToggleHeart(act.cod, act.isFavorite);
+                        handleToggleHeart(act.id, act.isFavorite);
                     }}
                     className="focus:outline-none transition-transform active:scale-110"
                   >

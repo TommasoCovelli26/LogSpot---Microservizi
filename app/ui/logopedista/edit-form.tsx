@@ -180,11 +180,11 @@ export default function EditForm({ activity }: { activity: ActivityDetail }) {
     };
 
     // Invoca la Server Action per aggiornare l'attività nel database
-    const res = await updateActivity(activity.cod, dataToSave);
+    const res = await updateActivity(activity.id, dataToSave);
     
     if (res.success) {
       // Se l'aggiornamento è riuscito, reindirizza alla pagina di dettaglio
-      router.push(`/logopedista/imieimateriali/${activity.cod}`);
+      router.push(`/logopedista/imieimateriali/${activity.id}`);
     } else {
       // Se l'aggiornamento è fallito, mostra l'errore e ripristina lo stato
       setIsSaving(false);

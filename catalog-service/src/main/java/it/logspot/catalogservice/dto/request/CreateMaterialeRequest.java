@@ -12,7 +12,7 @@ public class CreateMaterialeRequest {
     @NotBlank
     private String titolo;
 
-    @NotBlank
+    
     private String descrizione;
 
     private String url;

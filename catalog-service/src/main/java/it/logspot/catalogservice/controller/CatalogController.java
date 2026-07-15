@@ -19,7 +19,7 @@ import it.logspot.catalogservice.dto.request.UpdateCommentoRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/catalog")
+@RequestMapping(value = {"/catalog", "/catalog/"})
 public class CatalogController {
 
     private final CatalogService service;

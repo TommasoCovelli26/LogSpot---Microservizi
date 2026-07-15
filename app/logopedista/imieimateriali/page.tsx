@@ -62,8 +62,8 @@ export default async function Page({
       redirect('/dashboard'); 
     }
 
-    // Salva la P.IVA reale dell'utente loggato
-    userId = userData.utente.pIva || userData.utente.PIva || userData.utente.codice;
+    // Salva l'ID di MongoDB dell'utente loggato (con P.IVA come fallback)
+    userId = userData.utente.id || userData.utente._id || userData.utente.pIva || userData.utente.PIva || userData.utente.codice;
 
   } catch (error) {
     // Se il cookie è malformato o non parsabile, reindirizza al login

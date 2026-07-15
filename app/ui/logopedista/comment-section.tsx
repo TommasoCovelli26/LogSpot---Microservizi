@@ -26,7 +26,7 @@ import { addComment, editComment, deleteComment } from '@/lib/actions';
  * @property isPublic - Se true, mostra il form per aggiungere nuovi commenti
  */
 interface Props {
-  activityId: number;
+  activityId: string;
   comments: Comment[];
   currentUserPiva: string;
   isPublic: boolean;
@@ -47,7 +47,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Stato per l'ID del commento attualmente in modifica (null se nessuno)
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   // Stato per il testo del commento in fase di modifica
   const [editText, setEditText] = useState('');
 
@@ -80,7 +80,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
    * Handler per l'eliminazione di un commento.
    * Chiede conferma e chiama la Server Action deleteComment.
    */
-  const handleDelete = async (commentId: number) => {
+  const handleDelete = async (commentId: string) => {
     // Chiede conferma all'utente prima di eliminare
     if (!confirm("Sei sicuro di voler eliminare questo commento?")) return;
     
@@ -99,7 +99,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
    * Popola il campo di modifica con il testo attuale del commento.
    */
   const startEdit = (c: Comment) => {
-    setEditingId(c.cod);
+    setEditingId(c.id);
     setEditText(c.messaggio);
   };
 
@@ -115,7 +115,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
    * Salva le modifiche al commento.
    * Chiama la Server Action editComment con il nuovo testo.
    */
-  const saveEdit = async (commentId: number) => {
+  const saveEdit = async (commentId: string) => {
     // Se il testo è vuoto, non procedere
     if (!editText.trim()) return;
     
@@ -149,7 +149,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
         ) : (
           // Itera ogni commento e lo renderizza come card
           comments.map((c) => (
-            <div key={c.cod} className="flex gap-4 group">
+            <div key={c.id} className="flex gap-4 group">
               {/* Avatar del logopedista autore del commento */}
               <div className="flex-shrink-0 mt-1">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-yellow-400 shadow-sm text-yellow-400">
@@ -180,7 +180,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
                         <PencilSquareIcon className="w-4 h-4" />
                       </button>
                       {/* Pulsante elimina commento */}
-                      <button onClick={() => handleDelete(c.cod)} className="p-1 text-gray-400 hover:text-red-600 transition" title="Elimina">
+                      <button onClick={() => handleDelete(c.id)} className="p-1 text-gray-400 hover:text-red-600 transition" title="Elimina">
                         <TrashIcon className="w-4 h-4" />
                       </button>
                     </div>
@@ -188,7 +188,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
                 </div>
 
                 {/* Contenuto del commento: form di modifica oppure testo */}
-                {editingId === c.cod ? (
+                {editingId === c.id ? (
                   // Form di modifica in-place del commento
                   <div className="mt-2">
                     {/* Textarea con il testo del commento da modificare */}
@@ -203,7 +203,7 @@ export default function CommentSection({ activityId, comments, currentUserPiva, 
                       <button onClick={cancelEdit} className="text-xs text-black hover:text-gray-700 font-bold px-3 py-1 bg-gray-100 rounded-lg">
                         Annulla
                       </button>
-                      <button onClick={() => saveEdit(c.cod)} className="text-xs text-black bg-yellow-400 hover:bg-yellow-500 font-bold px-3 py-1 rounded-lg flex items-center gap-1">
+                      <button onClick={() => saveEdit(c.id)} className="text-xs text-black bg-yellow-400 hover:bg-yellow-500 font-bold px-3 py-1 rounded-lg flex items-center gap-1">
                         <CheckIcon className="w-3 h-3" /> Salva
                       </button>
                     </div>

@@ -46,14 +46,16 @@ export async function apiPost<T>(url: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
 
+  // Leggiamo il body una sola volta come testo
+  const text = await response.text();
+
   if (!response.ok) {
-
     let errorBody: any = null;
-
     try {
-      errorBody = await response.json();
+      // Proviamo a parsare il testo già letto
+      errorBody = JSON.parse(text);
     } catch {
-      errorBody = await response.text();
+      errorBody = text;
     }
 
     throw {
@@ -63,14 +65,8 @@ export async function apiPost<T>(url: string, body: unknown): Promise<T> {
     };
   }
 
-  // Gestione delle risposte senza body
-  if (response.status === 201 || response.status === 204) {
-    return {} as T;
-  }
-
-  const text = await response.text();
-
-  if (text.trim().length === 0) {
+  // Gestione successo
+  if (response.status === 201 || response.status === 204 || text.trim().length === 0) {
     return {} as T;
   }
 

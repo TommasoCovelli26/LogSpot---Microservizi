@@ -12,7 +12,13 @@ async function getUserId() {
   if (!userCookie) return null;
   try {
     const userData = JSON.parse(userCookie.value);
-    return userData.utente?.pIva || userData.utente?.PIva || userData.utente?.codice || null;
+    return userData.utente?.id || 
+           userData.utente?._id || 
+           userData.utente?.ObjectId || 
+           userData.utente?.pIva || 
+           userData.utente?.PIva || 
+           userData.utente?.codice || 
+           null;
   } catch {
     return null;
   }
@@ -40,7 +46,7 @@ function normalizeActivityId(activityId: string | number): string | null {
   return normalized.length > 0 ? normalized : null;
 }
 
-export async function toggleFavorite(activityId: number, isFavorite: boolean) {
+export async function toggleFavorite(activityId: string, isFavorite: boolean) {
   const userId = await getUserId();
   if (!userId) return { success: false, error: 'Utente non autenticato' };
 
@@ -133,7 +139,7 @@ export async function assignExerciseToPatient(patientCf: string, activityId: str
   }
 }
 
-export async function deleteActivity(id: number) {
+export async function deleteActivity(id: string) {
   try {
     await apiDelete(`${SERVICES.CATALOG}/${id}`);
     revalidatePath('/logopedista/imieimateriali');
@@ -143,7 +149,7 @@ export async function deleteActivity(id: number) {
   redirect('/logopedista/imieimateriali');
 }
 
-export async function updateActivity(id: number, formData: any) {
+export async function updateActivity(id: string, formData: any) {
   try {
     await apiPut(`${SERVICES.CATALOG}/${id}`, {
       titolo: formData.titolo,
@@ -173,7 +179,7 @@ export async function removeAssignedExercise(exerciseId: number, patientCf: stri
   }
 }
 
-export async function addComment(activityId: number, message: string) {
+export async function addComment(activityId: string, message: string) {
   const userId = await getUserId();
   if (!userId) return { success: false, message: 'Non sei loggato' };
 
@@ -190,7 +196,7 @@ export async function addComment(activityId: number, message: string) {
   }
 }
 
-export async function editComment(commentId: number, newMessage: string) {
+export async function editComment(commentId: string, newMessage: string) {
   // Nota: questa funzione richiederà nel backend la ricerca dell'id attività tramite commento o la sua inclusione.
   // Supponendo che il gateway permetta l'update diretto (modifica se l'endpoint è diverso)
   try {
@@ -201,7 +207,7 @@ export async function editComment(commentId: number, newMessage: string) {
   }
 }
 
-export async function deleteComment(commentId: number) {
+export async function deleteComment(commentId: string) {
   // Come per l'edit, dipende da come è mappato l'endpoint nel backend.
   try {
     await apiDelete(`${SERVICES.CATALOG}/commenti/${commentId}`);

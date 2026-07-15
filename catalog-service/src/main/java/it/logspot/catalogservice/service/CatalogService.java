@@ -59,11 +59,15 @@ public class CatalogService {
 
         Attivita attivita = mapper.toEntity(request);
 
+        if (attivita.getDescrizione() == null || attivita.getDescrizione().isBlank()) {
+                attivita.setDescrizione("Nessuna descrizione");
+        }
+
         repository.save(attivita);
 
         return mapper.toResponse(attivita);
 
-    }
+        }       
 
     public AttivitaResponse update(String id,
                                    UpdateAttivitaRequest request){

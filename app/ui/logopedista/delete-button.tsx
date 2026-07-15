@@ -13,7 +13,7 @@ import { useState } from 'react';
  * Mostra un dialog di conferma prima di procedere all'eliminazione.
  * @param id - Codice identificativo dell'attività da eliminare
  */
-export default function DeleteActivityButton({ id }: { id: number }) {
+export default function DeleteActivityButton({ id }: { id: string }) {
   // Stato che indica se è in corso un'eliminazione
   const [isDeleting, setIsDeleting] = useState(false);
 

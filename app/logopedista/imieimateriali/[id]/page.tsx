@@ -38,8 +38,8 @@ export default async function ActivityDetailPage({
 }) {
   // Estrae l'id dell'attività dai parametri dinamici della route
   const { id } = await params;
-  // Converte l'id in numero per le funzioni che richiedono un intero
-  const activityId = parseInt(id);
+  // NON Converte l'id in numero per le funzioni che richiedono un intero
+  //const activityId = parseInt(id);
   // Recupera i dettagli completi dell'attività dal database
   const activity = await fetchActivityById(id);
 
@@ -77,7 +77,7 @@ export default async function ActivityDetailPage({
   // -------------------------------------
 
   // Recupera tutti i commenti associati a questa attività
-  const comments = await fetchCommentsByActivityId(activityId);
+  const comments = await fetchCommentsByActivityId(id);
 
   // Splitta la stringa delle patologie (separata da virgola) in un array
   const patologieList = activity.patologie ? activity.patologie.split(',') : [];
@@ -234,7 +234,7 @@ export default async function ActivityDetailPage({
             </Link>
 
             {/* Pulsante Elimina: componente client per eliminare l'attività */}
-            <DeleteActivityButton id={activity.cod} />
+            <DeleteActivityButton id={activity.id} />
 
         </div>
         
@@ -245,7 +245,7 @@ export default async function ActivityDetailPage({
         {/* Componente CommentSection: mostra i commenti e il form per aggiungerne di nuovi */}
         {/* isPublic determina se il form di inserimento commenti è visibile (solo per attività pubbliche) */}
         <CommentSection 
-          activityId={activityId} 
+          activityId={id} 
           comments={comments} 
           currentUserPiva={currentPiva} 
           isPublic={activity.accessibilita} 

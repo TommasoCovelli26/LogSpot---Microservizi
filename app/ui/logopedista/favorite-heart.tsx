@@ -12,24 +12,24 @@ import { toggleFavorite } from '../../lib/actions';
 
 /**
  * Tipo delle props del componente FavoriteHeart.
- * @property cod - Codice identificativo dell'attività
+ * @property id - ID identificativo dell'attività
  * @property initialStatus - Stato iniziale del preferito (true = preferito)
  * @property onToggle - Callback opzionale invocata dopo il toggle
  */
 type FavoriteHeartProps = {
-  cod: number;
+  id: string;
   initialStatus: boolean;
-  onToggle?: (cod: number, isFavorite: boolean) => void;
+  onToggle?: (id: string, isFavorite: boolean) => void;
 };
 
 /**
  * Componente cuore per aggiungere/rimuovere un'attività dai preferiti.
  * Utilizza aggiornamento ottimistico con rollback in caso di errore.
- * @param cod - Codice dell'attività
+ * @param id - ID dell'attività
  * @param initialStatus - Stato iniziale del preferito
  * @param onToggle - Callback opzionale post-toggle
  */
-export default function FavoriteHeart({ cod, initialStatus, onToggle }: FavoriteHeartProps) {
+export default function FavoriteHeart({ id, initialStatus, onToggle }: FavoriteHeartProps) {
   // Stato locale del preferito, inizializzato con lo stato dal server
   const [isFavorite, setIsFavorite] = useState(initialStatus);
 
@@ -44,9 +44,9 @@ export default function FavoriteHeart({ cod, initialStatus, onToggle }: Favorite
     
     try {
       // Sincronizza con il server tramite Server Action
-      await toggleFavorite(cod, newStatus);
+      await toggleFavorite(id, newStatus);
       // Notifica il componente padre del cambiamento (se callback fornita)
-      onToggle?.(cod, newStatus);
+      onToggle?.(id, newStatus);
     } catch (e) {
       // Logga l'errore in console
       console.error("Errore preferiti");

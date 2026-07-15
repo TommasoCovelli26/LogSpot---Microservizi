@@ -75,8 +75,9 @@ function PageContent() {
 
     try {
       // Parsing dei dati utente e estrazione della P.IVA
+      // Parsing dei dati utente e estrazione dell'ID (priorità a MongoDB)
       const utenteObj = JSON.parse(sessione);
-      setPIva(utenteObj.codice ?? utenteObj.pIva ?? utenteObj.PIva ?? null);
+      setPIva(utenteObj.id ?? utenteObj._id ?? utenteObj.codice ?? utenteObj.pIva ?? utenteObj.PIva ?? null);
     } catch (e) {
       console.error('Errore parsing sessione:', e);
       // In caso di errore nel parsing, reindirizza al login
@@ -125,19 +126,17 @@ function PageContent() {
    * Callback per gestire il cambio di stato preferito di un'attività.
    * Aggiorna lo stato locale per riflettere immediatamente il cambio.
    * Se il filtro attivo è "preferiti" e si rimuove un preferito, rimuove la card dalla lista.
-   * @param cod - Codice dell'attività
+   * @param id - ID dell'attività
    * @param isFavorite - Nuovo stato preferito (true/false)
    */
-  const handleFavoriteChange = (cod: number, isFavorite: boolean) => {
+  const handleFavoriteChange = (id: string, isFavorite: boolean) => {
     setActivities((prev) => {
-      // Se siamo nella tab "preferiti" e l'utente toglie il preferito, rimuove l'attività dalla lista
       if (filter === 'preferiti' && !isFavorite) {
-        return prev.filter((act) => act.cod !== cod);
+        return prev.filter((act) => act.id !== id);
       }
-
       // Altrimenti aggiorna lo stato preferito dell'attività nella lista
-      return prev.map((act) =>
-        act.cod === cod ? { ...act, isFavorite } : act
+      return prev.map((act) => 
+        act.id === id ? { ...act, isFavorite } : act
       );
     });
   };

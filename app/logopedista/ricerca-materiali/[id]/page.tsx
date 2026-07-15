@@ -34,8 +34,8 @@ export default async function PublicActivityDetailPage({
 }) {
   // Estrae l'id dell'attività dai parametri dinamici della route
   const { id } = await params;
-  // Converte l'id in numero intero (necessario per i commenti)
-  const activityId = parseInt(id);
+  // NON Converte l'id in numero intero (necessario per i commenti)
+  // const activityId = parseInt(id);
   // Recupera i dettagli dell'attività dal database tramite il suo ID
   const activity = await fetchActivityById(id);
 
@@ -51,7 +51,7 @@ export default async function PublicActivityDetailPage({
     : 'Utente LogSpot';
 
   // Recupera i commenti associati a questa attività
-  const comments = await fetchCommentsByActivityId(activityId);
+  const comments = await fetchCommentsByActivityId(id);
   // Recupera i cookie HTTP per identificare l'utente corrente
   const cookieStore = await cookies();
   const userCookie = cookieStore.get('utente');
@@ -201,7 +201,7 @@ export default async function PublicActivityDetailPage({
         {/* Componente CommentSection: gestisce visualizzazione e invio commenti */}
         {/* isPublic=true permette a tutti i logopedisti di commentare */}
         <CommentSection 
-          activityId={activityId} 
+          activityId={id} 
           comments={comments} 
           currentUserPiva={currentPiva} 
           isPublic={true}

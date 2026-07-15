@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(value = {"/users", "/users/"})
 public class UserController {
 
     private final UserService userService;
