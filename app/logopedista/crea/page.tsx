@@ -185,7 +185,11 @@ export default function CreaAttivitaPage() {
     
     // Se il salvataggio ha successo, naviga alla pagina dei materiali
     if (res.success) {
-      router.push('/logopedista/imieimateriali');
+      if (res.activityId) {
+        router.push(`/logopedista/imieimateriali/${res.activityId}/assegna`);
+      } else {
+        router.push('/logopedista/imieimateriali');
+      }
     } else {
       // In caso di errore, riabilita il form e mostra un alert
       setIsSaving(false);

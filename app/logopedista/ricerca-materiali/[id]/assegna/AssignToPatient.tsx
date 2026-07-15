@@ -122,7 +122,7 @@ export default function AssignToPatient({ activityId, patients }: Props) {
     setMessage(null);
     
     // Chiama la server action per creare l'assegnazione nel database
-    const result = await assignExerciseToPatient(cf, Number(activityId));
+    const result = await assignExerciseToPatient(cf, activityId);
 
     if (result.success) {
       // Assegnazione riuscita: mostra messaggio di successo

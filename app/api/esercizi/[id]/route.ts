@@ -14,8 +14,8 @@ export async function GET(
     
     // Recupera i dettagli dell'attività collegata dal Catalog Service
     let activityDetails = {} as any;
-    if (exercise.attivitaId || exercise.id_attivita) {
-      const actId = exercise.attivitaId || exercise.id_attivita;
+    if (exercise.attivita || exercise.attivitaId || exercise.id_attivita) {
+      const actId = exercise.attivita || exercise.attivitaId || exercise.id_attivita;
       activityDetails = await apiGet<any>(`${SERVICES.CATALOG}/${actId}`).catch(() => ({}));
     }
 

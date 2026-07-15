@@ -1,50 +1,347 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LogSpot: Piattaforma Cloud-Native per la Tele-Riabilitazione Logopedica
 
-## Install Dependencies
+> **Sistema Informativo Distribuito a Microservizi**
+> *Progettato per la gestione clinica, l'assegnazione di terapie asincrone e il monitoraggio dei pazienti, basato su un'architettura Event-Driven sicura e scalabile.*
 
-Use this command line in the project folder
+![Java](https://img.shields.io/badge/Java-21-orange) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![Azure](https://img.shields.io/badge/Azure-Service_Bus-blue) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
+---
+
+## Indice della Documentazione
+1. [Visione del Progetto e Metodologia](#1-visione-del-progetto-e-metodologia)
+2. [Gestione del Dato Clinico e Sicurezza (Privacy by Design)](#2-gestione-del-dato-clinico-e-sicurezza-privacy-by-design)
+3. [Architettura del Progetto (Cloud-Native)](#3-architettura-del-progetto-cloud-native)
+4. [Ecosistema dei Microservizi](#4-ecosistema-dei-microservizi)
+5. [Comunicazione Event-Driven (Azure Service Bus)](#5-comunicazione-event-driven-azure-service-bus)
+6. [Stack Tecnologico](#6-stack-tecnologico)
+7. [Funzionalità Operative del Sistema](#7-funzionalità-operative-del-sistema)
+8. [Guida all'Installazione (Local e Cloud Setup)](#9-guida-allinstallazione-local--cloud-setup)
+9. [Risoluzione Problemi (Troubleshooting)](#10-risoluzione-problemi-troubleshooting)
+10. [File di Setup](#11-file-di-setup)
+
+---
+
+## 1. Visione del Progetto e Metodologia
+
+**LogSpot** nasce per digitalizzare e ottimizzare il percorso terapeutico logopedico. Passando da una gestione clinica tradizionale a un approccio di *tele-riabilitazione asincrona*, la piattaforma permette ai professionisti sanitari di creare materiali, assegnare esercizi personalizzati e monitorare i progressi.
+L'adozione di un'architettura a **Microservizi** garantisce alta disponibilità, tolleranza ai guasti (fault tolerance) e la possibilità di scalare singole porzioni del sistema (es. il traffico dei pazienti rispetto alla gestione del catalogo) in modo indipendente.
+
+---
+
+## 2. Gestione del Dato Clinico e Sicurezza (Privacy by Design)
+
+Trattando dati sensibili legati alla salute (esercizi clinici, feedback terapeutici), LogSpot implementa pattern architetturali per compartimentare le informazioni:
+
+* **Isolamento dei Database (Database-per-Service):** Non esiste un database monolitico. I dati anagrafici (User Service) sono fisicamente separati dai dati clinici (Therapy Service) su MongoDB Atlas.
+* **Autenticazione Stateless (JWT):** Il sistema utilizza token JWT iniettati in cookie sicuri (`HttpOnly`). Il frontend Next.js non conserva le credenziali, ma instrada le richieste attraverso un Gateway che valida il layer di sicurezza.
+* **Gateway come "Vigile Urbano" (Single Point of Entry):** Tutte le chiamate esterne passano rigorosamente dalla porta `8080` gestita da Spring Cloud Gateway, nascondendo la reale topologia e le porte interne dei microservizi.
+
+---
+
+## 3. Architettura del Progetto (Cloud-Native)
+
+L'infrastruttura è progettata seguendo i principi delle architetture distribuite. Il traffico in ingresso viene filtrato, smistato dal Gateway, e orchestrato tramite un Service Registry (Eureka) per la risoluzione dinamica degli indirizzi IP dei container.
+
+![alt text](image.png)
+
+**Componenti Core dell'Infrastruttura:**
+1. **Frontend Client:** Applicazione Next.js (Server Actions & Route Handlers).
+2. **API Gateway:** Entrypoint unico, maschera le rotte (es. `/api/users/` internamente mappato su `user-service`).
+3. **Eureka Server:** Service Registry. I microservizi vi si registrano all'avvio per rendere possibile il load balancing e la comunicazione interna senza indirizzi IP hard-coded.
+4. **Message Broker (Azure):** Gestisce le comunicazioni asincrone tra i domini di business.
+
+### 3.1 Albero directory del progetto
+
+L'organizzazione del codice sorgente rispetta il principio di **Separazione delle Responsabilità**. La struttura è altamente modulare e separa nettamente il codice applicativo del Frontend (Next.js) dai singoli Microservizi Backend (Spring Boot), facilitando la manutenibilità, la sicurezza e la scalabilità dell'architettura cloud-native.
+
+```text
+LogSpot/
+├── 📂 app/                      # [FRONTEND] Applicazione Next.js (App Router)
+│   ├── (pubblica)/             # UI Pubblica (Landing Page, Chi Siamo)
+│   ├── api/                    # Route Handlers (BFF - Backend For Frontend)
+│   ├── logopedista/            # UI Riservata (Dashboard, assegnazione esercizi)
+│   ├── paziente/               # UI Riservata (Cruscotto esercizi, progressi)
+│   └── ui/                     # Componenti React isolati e Server Actions
+│
+├── 📂 lib/                              # [FRONTEND] Core Logic, configurazioni e utility condivise di Next.js
+│   ├── 📂 config/
+│   │   └── 📄 services.ts               # Definizione degli URL base e delle porte per contattare il Gateway.
+│   ├── 📂 http/
+│   │   └── 📄 client.ts                 # Client fetch personalizzato: inietta automaticamente il token JWT nei cookie per l'autenticazione delle richieste.
+│   ├── 📂 middleware/
+│   │   └── 📄 auth.ts                   # Logica di Edge Routing: blocca l'accesso alle rotte protette (Dashboard) se l'utente non è autenticato.
+│   ├── 📂 types/                        # Definizioni TypeScript (DTO del frontend) per garantire type-safety.
+│   │   ├── 📄 activity.ts               # Interfacce per attività, materiali e commenti.
+│   │   ├── 📄 exercise.ts               # Interfacce per esercizi, terapie e progressi.
+│   │   └── 📄 user.ts                   # Interfacce per Logopedista, Paziente e Auth.
+│   └── 📂 utils/
+│       └── 📄 errors.ts                 # Gestione centralizzata e formattazione degli errori HTTP restituiti dai microservizi.
+│
+├── 📂 eureka-server/                    # [INFRASTRUTTURA] Service Registry (Discovery Server)
+│   ├── 📄 Dockerfile                    # Istruzioni di containerizzazione del servizio.
+│   ├── 📄 pom.xml                       # Dipendenze Spring Cloud Netflix Eureka Server.
+│   └── 📂 src/main/
+│       ├── 📂 java/it/logspot/eurekaserver/
+│       │   └── 📄 EurekaServerApplication.java  # Entry point annotato con @EnableEurekaServer.
+│       └── 📂 resources/
+│           └── 📄 application.properties        # Configurazione porta 8761 e regole del registry.
+│
+├── 📂 gateway-service/                  # [INFRASTRUTTURA] API Gateway (Single Point of Entry)
+│   ├── 📄 Dockerfile                    
+│   ├── 📄 pom.xml                       # Dipendenze Spring Cloud Gateway.
+│   └── 📂 src/main/
+│       ├── 📂 java/it/logspot/gatewayservice/
+│       │   ├── 📄 GatewayServiceApplication.java # Entry point annotato con @EnableDiscoveryClient.
+│       │   └── 📂 config/
+│       │       └── 📄 SecurityConfig.java        # Configurazione delle policy CORS globali e protezione perimetrale.
+│       └── 📂 resources/
+│           └── 📄 application.properties         # Regole di smistamento del traffico (Load Balancing) verso i vari microservizi.
+│
+├── 📂 user-service/                     # [MICROSERVIZIO] Gestione Utenti e Autenticazione (Porta 8081)
+│   ├── 📄 Dockerfile                    
+│   └── 📂 src/main/java/it/logspot/userservice/
+│       ├── 📄 UserServiceApplication.java
+│       ├── 📂 config/                   # Configurazioni di sistema (MongoDB e Spring Security base).
+│       ├── 📂 controller/               # Endpoint REST esposti al Gateway.
+│       │   ├── 📄 AuthController.java   # Gestione login, registrazione logopedisti e pazienti.
+│       │   └── 📄 UserController.java   # CRUD anagrafico e assegnazione pazienti.
+│       ├── 📂 dto/                      # Data Transfer Objects (Request/Response per il disaccoppiamento).
+│       ├── 📂 entity/                   # Modelli Mongoose/MongoDB (Logopedista, Paziente, Preferito).
+│       ├── 📂 exception/                # Gestione personalizzata eccezioni (es. EmailAlreadyExistsException).
+│       ├── 📂 mapper/                   # Logica di conversione DTO <-> Entity (UserMapper).
+│       ├── 📂 repository/               # Interfacce MongoRepository per le query al database 'logspot_user'.
+│       ├── 📂 security/                 # Livello di Sicurezza e JWT (Zero Trust).
+│       │   ├── 📄 JwtAuthenticationFilter.java  # Intercetta e valida la firma del token in ogni richiesta.
+│       │   ├── 📄 JwtService.java               # Logica di generazione, firma crittografica e parsing del JWT.
+│       │   └── 📄 CustomUserDetailsService.java # Integrazione custom con Spring Security.
+│       └── 📂 service/                  # Business Logic Layer.
+│           ├── 📄 AuthService.java      # Coordinamento registrazione e login.
+│           └── 📄 UserService.java      # Gestione regole di business e pubblicazione Eventi (JmsTemplate) verso Azure.
+│
+├── 📂 catalog-service/                  # [MICROSERVIZIO] Catalogo Materiali Pubblici (Porta 8082)
+│   ├── 📄 Dockerfile                    
+│   └── 📂 src/main/java/it/logspot/catalogservice/
+│       ├── 📄 CatalogServiceApplication.java
+│       ├── 📂 config/
+│       ├── 📂 controller/               
+│       │   └── 📄 CatalogController.java # Esposizione API per creazione, lettura e commento attività.
+│       ├── 📂 dto/                      # Separazione in /request e /response per materiali, attività e commenti.
+│       ├── 📂 entity/                   # Modelli per MongoDB (Materiale, Attivita, Commento).
+│       ├── 📂 exception/                # (es. AttivitaNotFoundException) e GlobalExceptionHandler.
+│       ├── 📂 mapper/                   
+│       ├── 📂 repository/               # MongoRepository per il database 'logspot_catalog'.
+│       └── 📂 service/                  
+│           └── 📄 CatalogService.java   # Logica di business per pubblicazione, aggiornamento e validazione dei materiali creati.
+│
+├── 📂 therapy-service/                  # [MICROSERVIZIO] Gestione Terapie e Assegnazioni (Porta 8083)
+│   ├── 📄 Dockerfile                    
+│   └── 📂 src/main/java/it/logspot/therapyservice/
+│       ├── 📄 TherapyServiceApplication.java
+│       ├── 📂 config/
+│       ├── 📂 controller/               
+│       │   └── 📄 TerapiaController.java # API per assegnazione esercizi e recupero progressi dei pazienti.
+│       ├── 📂 dto/                      # (es. AssignExerciseRequest, FeedbackRequest, ProgressResponse).
+│       ├── 📂 entity/                   # Modelli per MongoDB (Esercizio, Esercizio$Feedback).
+│       ├── 📂 exception/                
+│       ├── 📂 listener/                 # [ASYNC COMPONENT] Sottoscrizione Event-Driven.
+│       │   └── 📄 TherapyEventListener.java  # @JmsListener in ascolto su Azure Service Bus per reagire alla cancellazione degli utenti.
+│       ├── 📂 mapper/                   
+│       ├── 📂 repository/               # MongoRepository per il database 'logspot_therapy' (con query custom per l'eliminazione).
+│       └── 📂 service/                  
+│           └── 📄 TherapyService.java   # Logica di assegnazione, calcolo percentuale progressi, feedback ed eliminazione a cascata (chiamata dal Listener).
+│
+├── 📄 docker-compose.yml        # [DEVOPS] Orchestratore dell'intero ecosistema containerizzato
+├── 📄 .env                      # [SEGRETI] File protetto per Connection String di Azure (git-ignored)
+├── 📄 package.json              # [FRONTEND] Dipendenze e script di build Node.js
+└── 📄 README.md                 # Documentazione architetturale del progetto
+```
+---
+
+## 4. Ecosistema dei Microservizi
+
+La logica di business è frammentata in tre domini applicativi, ciascuno con responsabilità singole (Single Responsibility Principle) e proprio schema dati su **MongoDB Atlas**.
+
+### 👤 User Service (Porta 8081)
+* **Responsabilità:** Gestione profili (Logopedista/Paziente), autenticazione e generazione JWT, accoppiamento Paziente-Logopedista.
+* **Storage:** Database `logspot_user`.
+* **Eventi Pubblicati:** `PATIENT_DELETED`, `LOGOPEDISTA_DELETED`.
+
+### 📚 Catalog Service (Porta 8082)
+* **Responsabilità:** Gestione CRUD dei materiali didattici e terapeutici (attività pubbliche condivise).
+* **Storage:** Database `logspot_catalog`.
+
+### 🧠 Therapy Service (Porta 8083)
+* **Responsabilità:** Assegnazione materiale ai pazienti, monitoraggio dello stato di completamento, raccolta feedback terapeutici, calcolo delle statistiche di completamento.
+* **Storage:** Database `logspot_therapy`.
+* **Eventi Ascoltati:** Reagisce alle eliminazioni provenienti dall'User Service per eseguire la pulizia dei dati orfani (Eliminazione a cascata).
+
+---
+
+## 5. Comunicazione Event-Driven (Azure Service Bus)
+
+Per evitare l'accoppiamento stretto tra microservizi (es. il Therapy Service non deve bloccarsi se l'User Service cade) ed evitare richieste HTTP sincrone bloccanti, LogSpot utilizza **Microsoft Azure Service Bus** con pattern **Pub/Sub (Topic & Subscriptions)**.
+
+![alt text](image-2.png)
+
+**Esempio di flusso (Eliminazione a Cascata):**
+1. Il Logopedista elimina un Paziente.
+2. L'`user-service` elimina l'account da Mongo e pubblica sul Topic `logspot-events` il messaggio: `"PATIENT_DELETED:CF12345"`.
+3. Il `therapy-service`, costantemente in ascolto sulla sottoscrizione `therapy-sub`, intercetta il messaggio.
+4. In totale autonomia e asincronia, il `therapy-service` lancia una query di eliminazione per rimuovere solo gli esercizi clinici privati associati a quel CF dal proprio database, garantendo la coerenza dei dati (Data Consistency) senza rallentare l'utente finale.
+
+---
+
+## 6. Stack Tecnologico
+
+| Layer | Tecnologie Utilizzate | Motivo della Scelta |
+|---|---|---|
+| **Frontend** | React, Next.js (v14), Tailwind CSS | Rendering ibrido (SSR/CSR), API Routes interne per proxy delle chiamate, UX fluida. |
+| **Backend Core** | Java 21, Spring Boot 3.2 | Robustezza enterprise, tipizzazione forte, ecosistema maturo. |
+| **Routing & Cloud** | Spring Cloud Gateway, Netflix Eureka | Risoluzione dinamica dei servizi, Load Balancing nativo, sicurezza perimetrale. |
+| **Database** | MongoDB Atlas (NoSQL) | Flessibilità per strutture JSON-like, cloud-hosted per minimizzare il carico locale. |
+| **Message Broker** | Microsoft Azure Service Bus (Standard Tier) | Comunicazione Publish/Subscribe tramite Topic, alta affidabilità di consegna (TTL). |
+| **Orchestrazione** | Docker & Docker Compose | Contenimento e replicabilità assoluta dell'ambiente di sviluppo/produzione. |
+
+---
+
+## 7. Funzionalità Operative del Sistema
+
+LogSpot offre un set di funzionalità mirate a digitalizzare il flusso di lavoro clinico, garantendo una rigida separazione dei permessi tra professionista sanitario e paziente. Tutte le interazioni avvengono tramite un'interfaccia Next.js che comunica esclusivamente in modo sicuro con il Gateway.
+
+### 7.1 Autenticazione e Sicurezza (Identity Management)
+* **Registrazione e Ruoli Distinti:** Il sistema prevede due flussi di registrazione separati per `Logopedista` e `Paziente`, gestiti dall'`AuthController` dell'User Service. Il ruolo viene assegnato alla creazione e definisce l'esperienza d'uso.
+* **Autenticazione Stateless (JWT):** Al login, il sistema genera un token JWT crittografato che viene iniettato dal frontend nei cookie di sessione. Il Gateway e i microservizi validano questo token ad ogni richiesta tramite un `JwtAuthenticationFilter`, senza conservare sessioni lato server.
+* **Routing Protetto:** Il frontend (Next.js) utilizza un middleware per segregare le rotte: un paziente non può accedere alle URL `/logopedista/*` e viceversa, garantendo l'isolamento degli ambienti operativi.
+
+### 7.2 Ruolo: LOGOPEDISTA (Livello Clinico e Gestionale)
+Il Logopedista è l'attore principale della piattaforma, con permessi di scrittura e orchestrazione delle terapie.
+* **Gestione Catalogo (Catalog Service):** Creazione, modifica ed eliminazione di **Materiali** e **Attività** pubbliche o private.
+  * Possibilità di aggiungere attività al proprio elenco dei **Preferiti** per un recupero rapido durante la creazione delle terapie.
+* **Gestione Pazienti (User Service):**
+  * Ricerca e **Accoppiamento** dei pazienti liberi al proprio account.
+  * Possibilità di **Disaccoppiare** un paziente a fine terapia, rendendolo nuovamente disponibile nel sistema.
+* **Assegnazione Terapie (Therapy Service):**
+  * Assegnazione diretta di un'attività del catalogo a un paziente specifico. Questa azione genera un'entità `Esercizio` indipendente, fissandone la data di assegnazione e impostando lo stato iniziale su `DA_SVOLGERE`.
+* **Monitoraggio Progressi:** Accesso a un cruscotto analitico per visualizzare in tempo reale lo stato di completamento delle terapie di ogni singolo paziente assegnato (tramite l'endpoint di `ProgressResponse`).
+
+### 7.3 Ruolo: PAZIENTE (Livello Tele-Riabilitazione)
+Il Paziente opera in un ambiente semplificato, focalizzato esclusivamente sull'esecuzione della terapia assegnata, con permessi limitati al proprio perimetro.
+* **Bacheca Esercizi Personale:** Visualizzazione in sola lettura degli esercizi assegnati dal proprio Logopedista. Il paziente non può vedere il catalogo generale o gli esercizi di altri utenti.
+* **Esecuzione e Feedback (Therapy Service):** Una volta svolto l'esercizio, il paziente invia un **Feedback testuale** clinico o personale sulla difficoltà o sull'esito dell'attività (`FeedbackRequest`).
+  * L'invio del feedback agisce come "trigger" di completamento: il sistema aggiorna automaticamente lo stato dell'esercizio da `DA_SVOLGERE` a `COMPLETATO`.
+* **Cruscotto Personale:** Visualizzazione delle proprie statistiche, con il conteggio degli esercizi totali, completati e da svolgere, inclusa la percentuale di avanzamento globale (`ProgressResponse`).
+
+### 7.4 Automazione e Consistenza Dati (Infrastruttura Event-Driven)
+Una delle funzionalità infrastrutturali più avanzate di LogSpot è la gestione automatizzata della "pulizia dei dati" (Data Consistency) tramite **Azure Service Bus**, che opera in background senza bloccare la navigazione dell'utente:
+* **Eliminazione Paziente (Cascading Delete):** Se un Logopedista elimina il profilo di un paziente, l'`user-service` pubblica l'evento `PATIENT_DELETED`. Il `therapy-service` lo intercetta e lancia istantaneamente una query distruttiva su MongoDB per rimuovere tutti gli esercizi clinici privati associati a quel CF, evitando dati orfani.
+* **Eliminazione Logopedista:** Se un Logopedista decide di eliminare il proprio account, il sistema esegue un'operazione complessa a più fasi:
+  1. L'`user-service` disaccoppia automaticamente tutti i pazienti seguiti da quel medico (rimuovendo il riferimento al logopedista).
+  2. Pubblica l'evento `LOGOPEDISTA_DELETED` sul cloud.
+  3. Il `therapy-service` ascolta l'evento ed elimina tutte le terapie e gli esercizi privati che quel medico aveva assegnato (le attività rese pubbliche rimarranno salvate nel database), ripulendo il database clinico in modo totalmente asincrono.
+
+### 7.5 Design System, Accessibilità e UX/UI 
+L'interfaccia grafica di LogSpot, ingegnerizzata con **Next.js** e stilizzata tramite **Tailwind CSS**, implementa un *Design System* differenziato. La progettazione della UX (User Experience) riflette la netta separazione dei domini applicativi, adattando il layout, i colori e la densità delle informazioni al carico cognitivo richiesto dallo specifico ruolo:
+
+* 👩‍⚕️🟡 **LOGOPEDISTA - Clinical & Management View**
+  * **Obiettivo:** Efficienza operativa, analisi dei dati e *Situational Awareness* sullo stato clinico dei pazienti.
+  * **Scelte di Design:** L'interfaccia si presenta come una "Data-Rich UI" (Interfaccia ad alta densità di dati). Utilizza componenti strutturati come cruscotti analitici (`stats-overview.tsx`), viste tabellari per la gestione anagrafica (`pazienti-table.tsx`) e moduli a step per la creazione dei materiali medici. I colori professionali e neutri favoriscono la concentrazione durante le sessioni prolungate di lavoro.
+  * **Feedback Operativo:** Badge visivi e contatori permettono di identificare a colpo d'occhio i pazienti "non assegnati", le attività preferite (`favorite-heart.tsx`) e lo stato di avanzamento delle terapie assegnate.
+
+* 🧑🔵 **PAZIENTE - Therapeutic & Accessible View**
+  * **Obiettivo:** Ridurre al minimo il carico cognitivo (*Cognitive Load*), garantire l'inclusività e favorire l'aderenza terapeutica (Compliance).
+  * **Scelte di Design:** Layout minimalista, ad alto contrasto e *Distraction-Free*. Il paziente non ha menu complessi: accede direttamente a visualizzazioni focalizzate sul compito (es. `next-exercise-card.tsx`). La tipografia (`fonts.ts`) e le spaziature sono ottimizzate per l'accessibilità visiva e motoria.
+  * **Rinforzo Positivo:** Il completamento degli esercizi non è un semplice aggiornamento di database. L'interfaccia restituisce un feedback gratificante tramite barre di avanzamento dinamiche (`completion-progress.tsx` e `dashboard-stats.tsx`), trasformando la riabilitazione asincrona in un percorso visivamente misurabile e incoraggiante.
+
+L'intero frontend è sviluppato secondo il paradigma **Mobile-First / Responsive Design**. Questo garantisce che il logopedista possa consultare i referti da un tablet durante i giri in reparto, e che il paziente possa svolgere i propri esercizi comodamente dal proprio smartphone, abbattendo le barriere tecnologiche della tele-riabilitazione.
+
+---
+
+## 8. Guida all'Installazione (Local & Cloud Setup)
+
+**Prerequisiti di Sistema:** **Docker** e **Docker Compose** installati e in esecuzione sul sistema host.
+* **Java 21** e **Node.js 20+** (necessari solo per l'avvio e lo sviluppo in modalità manuale senza Docker).
+
+### 8.1 Prerequisiti Cloud (MongoDB Atlas e Azure)
+Essendo LogSpot un'applicazione *Cloud-Native*, i servizi di persistenza e messaggistica non girano in locale, ma si appoggiano a infrastrutture cloud. Prima di avviare il codice, è necessario preparare gli ambienti esterni:
+
+1. **MongoDB Atlas (Database):**
+   * Assicurarsi che l'URI del cluster sia attivo.
+   * **Cruciale per Docker:** Andare sulla dashboard di Atlas -> *Network Access* -> *Add IP Address* e selezionare **"Allow Access from Anywhere"** (`0.0.0.0/0`). Senza questo passaggio, i container Docker andranno in `MongoTimeoutException` perché Atlas bloccherà gli IP virtuali della rete containerizzata.
+2. **Microsoft Azure Service Bus (Message Broker):**
+   * Verificare che la risorsa su Azure sia configurata con il piano tariffario **Standard** (il piano Basic non supporta i *Topic* necessari per l'eliminazione a cascata).
+   * Generare e copiare la *Stringa di connessione primaria* (Primary Connection String).
+
+### 8.2 Configurazione delle Variabili d'Ambiente (Security)
+Per evitare il rischio di *Secret Sprawl* (chiavi caricate per errore su GitHub), le credenziali di Azure vengono iniettate dinamicamente nei container all'avvio tramite variabili d'ambiente.
+
+1. Creare un file vuoto chiamato esattamente **`.env`** nella directory principale (root) del progetto (allo stesso livello del file `docker-compose.yml`).
+2. Inserire all'interno la stringa di connessione di Azure, rigorosamente senza virgolette e senza spazi attorno all'uguale:
+   ```env
+   AZURE_SERVICEBUS_CONNECTION_STRING=Endpoint=sb://[TUO_NAMESPACE].servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[TUA_CHIAVE]=
+   ```
+*(Nota: Il file `.env` è già ignorato da Git grazie alle regole configurate nel `.gitignore` del progetto).*
+
+### 8.3 Avvio dell'Ecosistema tramite Docker Compose
+L'intera architettura (Frontend, Gateway, Service Registry e i 3 Microservizi) è orchestrata da un singolo file `docker-compose.yml` che ne gestisce le dipendenze strutturali.
+
+Aprire il terminale nella root del progetto e lanciare:
 ```bash
-npm install 
-
-npm install better-sqlite3 
-
-npm install -D @types/better-sqlite3 ts-node
-
-npm install use-debounce
+docker-compose up --build -d
 ```
 
-## Getting Started
+**Fase di Riscaldamento (Warm-up):**
+Data la natura asincrona dei microservizi, il sistema necessita di circa **1-2 minuti** per stabilizzarsi:
+1. `eureka-server` si avvia e apre il registry.
+2. `user-service`, `catalog-service` e `therapy-service` si collegano a Mongo, ad Azure e infine si registrano su Eureka.
+3. `gateway-service` interroga Eureka, mappa le rotte e si mette in ascolto sulla porta 8080.
+4. Il frontend `logspot-web` si avvia e si collega al Gateway.
 
-First, run the development server:
+### 8.4 Mappatura delle Porte e Punti di Accesso
+Una volta che i container sono nello stato "Running", l'infrastruttura espone i seguenti punti di accesso sul `localhost` dell'host:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+| Servizio | URL Accesso | Funzione / Ruolo |
+| :--- | :--- | :--- |
+| **Frontend Web (Next.js)** | `http://localhost:3000` | Interfaccia utente (Punto d'ingresso per Logopedisti e Pazienti). |
+| **Eureka Dashboard** | `http://localhost:8761` | Console di monitoraggio. Mostra lo stato *UP* dei microservizi registrati. |
+| **API Gateway** | `http://localhost:8080` | Entrypoint delle API. *(Normalmente non richiamato direttamente dall'utente, ma dal client HTTP del frontend)*. |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 8.5 Creazione Credenziali e Test Iniziale
+A differenza dei classici gestionali, LogSpot non fornisce un utente "admin" pre-caricato. Per iniziare a testare la piattaforma:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Navigare su `http://localhost:3000` e cliccare su **"Registrati"** (o navigare su `/registrazione`).
+2. Scegliere il ruolo **Logopedista**.
+3. Compilare l'anagrafica (es. `Mario`, `Rossi`, `mario@logspot.it`, `password123`).
+4. Effettuare il **Login**. Il JWT verrà generato dallo `user-service` e iniettato nei cookie HTTP-Only.
+5. Dal pannello di controllo, sarà possibile creare nuovi materiali (salvati sul `catalog-service`) e registrare nuovi pazienti per testare l'assegnazione delle terapie e il flusso asincrono tramite Service Bus.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 8.6 Sviluppo e Avvio Manuale (Hot Reload)
+Se si desidera sviluppare e vedere le modifiche in tempo reale senza dover ricostruire i container Docker:
+1. Spegnere i container in esecuzione: `docker-compose down`
+2. **Frontend:** Aprire il terminale nella root, eseguire `npm install` e poi `npm run dev`.
+3. **Backend:** Aprire un terminale separato per ogni microservizio (partendo sempre prima da `eureka-server`) e avviarli tramite Maven Wrapper:
+   * **Windows:** `mvnw spring-boot:run`
+   * **Mac/Linux:** `./mvnw spring-boot:run`
+*(Assicurarsi di aver configurato la variabile `AZURE_SERVICEBUS_CONNECTION_STRING` nel proprio IDE o nell'ambiente del terminale prima di lanciare i processi Java).*
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 9. Risoluzione Problemi (Troubleshooting)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In caso di difficoltà durante l'avvio o l'utilizzo della piattaforma in ambiente locale, consultare la seguente tabella:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Sintomo / Errore | Causa Probabile | Soluzione Tecnica |
+| :--- | :--- | :--- |
+| **I microservizi vanno in crash continuo (Exited)** | Errore MongoTimeoutException. MongoDB Atlas blocca la connessione Docker. | Andare su Atlas -> Network Access -> Aggiungere l'IP **`0.0.0.0/0`** (Allow from anywhere). |
+| **Il Frontend dà errore "Impossibile caricare i dati" o Error 500** | Il Gateway o Eureka non sono ancora pronti, oppure il token **`JWT`** è scaduto. | Attendere 2 minuti dall'avvio di Docker Compose. Se persiste, fare un logout/login per rigenerare il cookie. |
+| **L'eliminazione a cascata non funziona (Gli esercizi restano)** | Problema di configurazione JMS o credenziali Azure errate. | Verificare che nel file **`.env`** la stringa non abbia virgolette. Controllare che su Azure il piano del Service Bus sia Standard *(i piani Basic non supportano i Topic)*. |
+| **Modifiche al codice non visibili** | I container utilizzano un'immagine cachata. | Forzare la build del singolo servizio: **`docker-compose up --build -d --build nome-servizio`** |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 10. File di Setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+In caso si voglia visionare o seguire step by step le procedure di installazione sui vari sistemi operativi (*Windows*, *Linux*, *MacOs*), si può trovare la relativa guida nei corrispettivi file situati nella root del progetto:
+
+* **Per Windows:** **`Windows_SETUP`**
+* **Per Linux:** **`Linux_SETUP`**
+* **Per MacOs:** **`MacOs_SETUP`**

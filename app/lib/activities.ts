@@ -16,7 +16,7 @@ export interface AssignedExercise {
   dataAssegnazione: string;
   statoCompletamento: string | null;
   esito: string | null;
-  id_attivita: number;
+  id_attivita: string | number;
 }
 
 export interface Comment {
@@ -88,7 +88,8 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
       dataCreazione: a.dataCreazione || new Date().toISOString(),
       isFavorite: preferitiIds.has(String(a.id || a.cod)),
       fasciaEta: a.fasciaEta,
-      patologie: a.patologie
+      patologie: a.patologie,
+      id_logopedista: a.creatore || a.id_logopedista || ''
     }));
 
     if (query.trim()) {
@@ -126,7 +127,7 @@ export async function fetchActivityById(id: string): Promise<ActivityDetail | nu
       accessibilita: Boolean(data.accessibilita),
       fasciaEta: Number(data.fasciaEta || 0),
       patologie: Array.isArray(data.patologie) ? data.patologie.join(',') : (data.patologie || ''),
-      id_logopedista: data.id_logopedista || '',
+      id_logopedista: data.creatore || data.id_logopedista || '',
       nome_logopedista: data.nome_logopedista,
       cognome_logopedista: data.cognome_logopedista,
     };
@@ -146,7 +147,7 @@ export async function fetchAssignedExercises(patientCf: string, query: string = 
       dataAssegnazione: e.dataAssegnazione,
       statoCompletamento: e.statoCompletamento,
       esito: e.esito,
-      id_attivita: e.attivitaId || e.id_attivita
+      id_attivita: e.attivita || e.attivitaId || e.id_attivita
     }));
 
     if (query.trim()) {
