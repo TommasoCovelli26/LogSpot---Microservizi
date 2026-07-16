@@ -24,6 +24,8 @@ public class Attivita {
 
     private List<String> patologie = new ArrayList<>();
 
+    private List<String> immagini = new ArrayList<>();
+
     private Boolean accessibilita;
 
     private String creatore;

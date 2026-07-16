@@ -53,8 +53,6 @@ export default async function ActivityDetailPage({
   const cookieStore = await cookies();
   // Legge il cookie 'utente' contenente i dati della sessione
   const userCookie = cookieStore.get('utente');
-  // Nome del creatore dell'attività (fallback in caso di cookie mancante)
-  let creatorName = "Utente Sconosciuto";
   // P.IVA del logopedista corrente (per la sezione commenti)
   let currentPiva = '';
 
@@ -64,8 +62,6 @@ export default async function ActivityDetailPage({
       // Parsing del valore JSON del cookie
       const userData = JSON.parse(userCookie.value);
       if (userData?.utente) {
-        // Compone il nome completo del creatore da nome e cognome
-        creatorName = `${userData.utente.nome} ${userData.utente.cognome}`;
         // Salva la P.IVA per la sezione commenti
         currentPiva = userData.utente.pIva || userData.utente.PIva || userData.utente.codice;
       }
@@ -75,6 +71,10 @@ export default async function ActivityDetailPage({
     }
   }
   // -------------------------------------
+
+  const creatorName = activity.nome_logopedista && activity.cognome_logopedista
+    ? `${activity.nome_logopedista} ${activity.cognome_logopedista}`
+    : 'Utente LogSpot';
 
   // Recupera tutti i commenti associati a questa attività
   const comments = await fetchCommentsByActivityId(id);

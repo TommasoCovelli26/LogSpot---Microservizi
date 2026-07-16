@@ -36,6 +36,20 @@ function normalizePathologies(input: unknown): string[] {
   return [];
 }
 
+function getActivitySaveErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error && 'response' in error) {
+    const response = (error as any).response;
+    const responseText = typeof response === 'string' ? response : JSON.stringify(response);
+    const normalized = responseText.toLowerCase();
+
+    if (normalized.includes('descrizione')) {
+      return "Non è stato possibile salvare l'attività, immettere la descrizione";
+    }
+  }
+
+  return "Errore nel salvataggio dell'attività";
+}
+
 function normalizeActivityId(activityId: string | number): string | null {
   if (typeof activityId === 'number') {
     if (!Number.isFinite(activityId)) return null;
@@ -85,10 +99,7 @@ export async function saveActivity(formData: any) {
     return { success: true, message: 'Attivita salvata!', activityId: created.id ?? created.cod };
   } catch (error) {
     console.error('Errore API salvataggio attivita:', error);
-    const message = typeof error === 'object' && error && 'response' in error
-      ? `Errore nel salvataggio: ${JSON.stringify((error as any).response)}`
-      : 'Errore nel salvataggio';
-    return { success: false, message };
+    return { success: false, message: getActivitySaveErrorMessage(error) };
   }
 }
 
@@ -165,7 +176,7 @@ export async function updateActivity(id: string, formData: any) {
     revalidatePath('/logopedista/imieimateriali');
     return { success: true, message: 'Attivita aggiornata!' };
   } catch (error) {
-    return { success: false, message: "Errore API durante l'aggiornamento" };
+    return { success: false, message: getActivitySaveErrorMessage(error) };
   }
 }
 

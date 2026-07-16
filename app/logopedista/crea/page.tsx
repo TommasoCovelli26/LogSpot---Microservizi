@@ -193,7 +193,7 @@ export default function CreaAttivitaPage() {
     } else {
       // In caso di errore, riabilita il form e mostra un alert
       setIsSaving(false);
-      alert("Errore: " + res.message);
+      alert(res.message);
     }
   };
 
