@@ -41,7 +41,7 @@ export default async function AssignedExercisePage({
     if (!exercise) return notFound();
 
     // 2. Recupero i dettagli dell'attività dal Catalog Service
-    const actId = exercise.attivitaId || exercise.id_attivita;
+    const actId = exercise.attivita || exercise.attivitaId || exercise.id_attivita;
     const activity = await apiGet<any>(`${SERVICES.CATALOG}/${actId}`).catch(() => ({}));
 
     // 3. Recupero l'eventuale feedback dal Therapy Service
@@ -60,15 +60,13 @@ export default async function AssignedExercisePage({
       : (activity.immagine ? String(activity.immagine).split('|') : []);
 
     // Formattazione Feedback
-    const feedbacks = feedbackRes && feedbackRes.messaggio
-      ? [
-          {
-            cod: feedbackRes.id || Date.now(),
-            messaggio: feedbackRes.messaggio,
-            data: feedbackRes.data ? new Date(feedbackRes.data).toISOString() : new Date().toISOString(),
-          },
-        ]
-      : [];
+    const feedbacks = Array.isArray(feedbackRes) 
+      ? feedbackRes.map((f: any, index: number) => ({
+          cod: f.id || f.cod || Date.now() + index,
+          messaggio: f.messaggio || f.testo || '',
+          data: f.data || new Date().toISOString(),
+        }))
+      : (feedbackRes && feedbackRes.messaggio ? [feedbackRes] : []);
 
     return (
       <main className="w-full min-h-screen bg-white p-6 md:p-12 font-sans">

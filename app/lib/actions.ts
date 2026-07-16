@@ -186,12 +186,20 @@ export async function addComment(activityId: string, message: string) {
   try {
     await apiPost(`${SERVICES.CATALOG}/${activityId}/commenti`, {
       messaggio: message,
-      logopedistaId: userId
+      logopedista: userId
     });
     revalidatePath(`/logopedista/ricerca-materiali/${activityId}`);
     revalidatePath(`/logopedista/imieimateriali/${activityId}`);
     return { success: true };
   } catch (error) {
+
+
+
+console.error("=== ERRORE INVIO COMMENTO ===", (error as any)?.response || error);    
+
+
+
+
     return { success: false, message: 'Errore API aggiunta commento' };
   }
 }
