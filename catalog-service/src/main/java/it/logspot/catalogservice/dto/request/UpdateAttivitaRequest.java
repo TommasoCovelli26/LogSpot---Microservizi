@@ -21,4 +21,6 @@ public class UpdateAttivitaRequest {
     @NotNull
     private List<String> patologie;
 
+    private List<String> immagini;
+
 }

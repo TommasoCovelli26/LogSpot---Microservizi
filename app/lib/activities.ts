@@ -35,12 +35,29 @@ export interface ActivityDetail {
   descrizione: string;
   istruzioni: string;
   immagine: string;
+  immagini?: string[];
   accessibilita: boolean;
   fasciaEta: number;
   patologie: string;
   id_logopedista: string;
   nome_logopedista?: string;
   cognome_logopedista?: string;
+}
+
+async function fetchCreatorName(creatorId: string): Promise<{ nome_logopedista?: string; cognome_logopedista?: string }> {
+  if (!creatorId) {
+    return {};
+  }
+
+  try {
+    const user = await apiGet<any>(`${SERVICES.USER}/logopedista/${creatorId}`);
+    return {
+      nome_logopedista: user?.nome,
+      cognome_logopedista: user?.cognome,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export async function fetchActivities(userId: string, query: string = '', filter: string = 'recenti'): Promise<ActivityWithFavorite[]> {
@@ -135,18 +152,22 @@ export async function fetchPublicActivities(userId: string, query: string = '', 
 export async function fetchActivityById(id: string): Promise<ActivityDetail | null> {
   try {
     const data = await apiGet<any>(`${SERVICES.CATALOG}/${id}`);
+    const creatorId = String(data.creatore || data.id_logopedista || '').trim();
+    const creatorName = await fetchCreatorName(creatorId);
+
     return {
       id: String(data.id),
       titolo: data.titolo || '',
       descrizione: data.descrizione || '',
       istruzioni: data.istruzioni || '',
       immagine: Array.isArray(data.immagini) ? data.immagini.join('|') : (data.immagine || ''),
+      immagini: Array.isArray(data.immagini) ? data.immagini : (data.immagine ? String(data.immagine).split('|').filter(Boolean) : []),
       accessibilita: Boolean(data.accessibilita),
       fasciaEta: Number(data.fasciaEta || 0),
       patologie: Array.isArray(data.patologie) ? data.patologie.join(',') : (data.patologie || ''),
-      id_logopedista: data.creatore || data.id_logopedista || '',
-      nome_logopedista: data.nome_logopedista,
-      cognome_logopedista: data.cognome_logopedista,
+      id_logopedista: creatorId,
+      nome_logopedista: creatorName.nome_logopedista || data.nome_logopedista,
+      cognome_logopedista: creatorName.cognome_logopedista || data.cognome_logopedista,
     };
   } catch (error) {
     console.error('API Error:', error);

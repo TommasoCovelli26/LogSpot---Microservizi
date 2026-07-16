@@ -17,6 +17,8 @@ public class AttivitaResponse {
 
     private List<String> patologie;
 
+    private List<String> immagini;
+
     private Boolean accessibilita;
 
     private String creatore;

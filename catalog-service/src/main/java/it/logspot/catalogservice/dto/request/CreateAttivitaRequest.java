@@ -21,6 +21,8 @@ public class CreateAttivitaRequest {
     @NotNull
     private List<String> patologie;
 
+    private List<String> immagini;
+
     @NotBlank
     private String creatore;
 

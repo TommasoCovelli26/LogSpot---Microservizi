@@ -46,7 +46,7 @@ export default async function PublicActivityDetailPage({
 
   // Costruisce il nome completo del creatore dell'attività dai dati del DB
   // Se il nome non è disponibile, usa un fallback generico
-  const creatorName = activity.nome_logopedista 
+  const creatorName = activity.nome_logopedista && activity.cognome_logopedista
     ? `${activity.nome_logopedista} ${activity.cognome_logopedista}`
     : 'Utente LogSpot';
 
