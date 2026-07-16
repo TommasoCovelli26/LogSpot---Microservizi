@@ -127,7 +127,7 @@ export default function DashboardPage() {
         // 2. Per ogni paziente, recupera in parallelo i suoi esercizi assegnati
         const exercisesResponses = await Promise.all(
           patientList.map((patient) =>
-            fetch(`/api/esercizi?cf=${patient.cf}&pIva=${utente.codice}`)
+            fetch(`/api/esercizi?cf=${patient.cf}&pIva=${utente.id}`)
           )
         );
 
@@ -170,14 +170,12 @@ export default function DashboardPage() {
         // Conta gli esercizi completati oggi
         const completedToday = allExercises.filter(
           (exercise) =>
-            exercise.statoCompletamento === "completato" &&
+            exercise.statoCompletamento === "COMPLETATO" &&
             isSameDay(exercise.dataAssegnazione)
         ).length;
-        // Conta gli esercizi in corso (senza stato o con stato "in-corso")
+
         const inProgress = allExercises.filter(
-          (exercise) =>
-            !exercise.statoCompletamento ||
-            exercise.statoCompletamento === "in-corso"
+          (exercise) => exercise.statoCompletamento !== "COMPLETATO"
         ).length;
 
         // 7. Aggiorna tutti gli stati con i dati calcolati
@@ -210,16 +208,17 @@ export default function DashboardPage() {
   // Numero totale di esercizi assegnati al paziente
   const totalExercises = exercises.length;
   // Numero di esercizi completati
+  // Numero di esercizi completati
   const completedExercises = exercises.filter(
-    (ex) => ex.statoCompletamento === "completato"
+    (ex) => ex.statoCompletamento === "COMPLETATO"
   ).length;
-  // Numero di esercizi in corso (senza stato o "in-corso")
+  // Numero di esercizi in corso (tutto ciò che non è completato)
   const inProgressExercises = exercises.filter(
-    (ex) => !ex.statoCompletamento || ex.statoCompletamento === "in-corso"
+    (ex) => ex.statoCompletamento !== "COMPLETATO"
   ).length;
   // Trova il prossimo esercizio da svolgere (il primo non completato)
   const nextExercise = exercises.find(
-    (ex) => !ex.statoCompletamento || ex.statoCompletamento === "in-corso"
+    (ex) => ex.statoCompletamento !== "COMPLETATO"
   );
   // Calcola la percentuale di completamento degli esercizi
   const completionRate = totalExercises

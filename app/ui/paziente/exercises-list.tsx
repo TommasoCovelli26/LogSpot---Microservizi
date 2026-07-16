@@ -23,20 +23,14 @@ const formatDate = (dateString: string) => {
 
 /**
  * Restituisce un badge colorato in base allo stato di completamento dell'esercizio.
- * @param status - Stato dell'esercizio: 'in-corso', 'completato', null o altro
+ * @param status - Stato dell'esercizio: 'COMPLETATO' oppure altro (in corso)
  * @returns Elemento span con stile e testo appropriati
  */
 const getStatusBadge = (status: string | null) => {
-  // Se lo stato è null o 'in-corso', mostra badge giallo "In Corso"
-  if (!status || status === 'in-corso') {
-    return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">In Corso</span>;
-  }
-  // Se lo stato è 'completato', mostra badge verde "Completato"
-  if (status === 'completato') {
+  if (status === 'COMPLETATO') {
     return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Completato</span>;
   }
-  // Per qualsiasi altro stato, mostra badge grigio "Non iniziato"
-  return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">Non iniziato</span>;
+  return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">In Corso</span>;
 };
 
 /**

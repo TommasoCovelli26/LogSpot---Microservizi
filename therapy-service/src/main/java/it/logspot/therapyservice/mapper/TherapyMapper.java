@@ -45,7 +45,7 @@ public class TherapyMapper {
         response.setAttivita(esercizio.getAttivita());
         response.setLogopedista(esercizio.getLogopedista());
         response.setPaziente(esercizio.getPaziente());
-        response.setFeedback(esercizio.getFeedback());
+        response.setFeedbacks(esercizio.getFeedbacks());
 
         return response;
 

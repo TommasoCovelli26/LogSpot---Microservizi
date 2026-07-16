@@ -16,6 +16,7 @@ export interface AssignedExercise {
   dataAssegnazione: string;
   statoCompletamento: string | null;
   esito: string | null;
+  durata: number;
   id_attivita: string | number;
 }
 
@@ -173,6 +174,7 @@ export async function fetchAssignedExercises(patientCf: string, query: string = 
           dataAssegnazione: e.dataAssegnazione,
           statoCompletamento: e.statoCompletamento,
           esito: e.esito,
+          durata: e.durata || 0,
           id_attivita: activityId,
         };
       })

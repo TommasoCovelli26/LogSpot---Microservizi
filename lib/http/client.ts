@@ -81,10 +81,28 @@ export async function apiPut<T>(url: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
 
+  const text = await response.text();
+
   if (!response.ok) {
-    throw new Error(`Errore HTTP ${response.status}`);
+    let errorBody: any = null;
+    try {
+      errorBody = JSON.parse(text);
+    } catch {
+      errorBody = text;
+    }
+
+    throw {
+      status: response.status,
+      message: `Errore HTTP ${response.status}`,
+      response: errorBody,
+    };
   }
-  return response.json();
+
+  if (response.status === 204 || text.trim().length === 0) {
+    return {} as T;
+  }
+
+  return JSON.parse(text);
 }
 
 export async function apiDelete<T>(url: string): Promise<T> {

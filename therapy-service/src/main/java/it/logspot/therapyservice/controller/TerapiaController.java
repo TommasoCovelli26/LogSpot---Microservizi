@@ -98,10 +98,11 @@ public class TerapiaController {
         );
 
     }
-
+    
+    
     @GetMapping("/esercizi/{id}/feedback")
-    public ResponseEntity<Esercizio.Feedback> getFeedback(
-            @PathVariable String id){
+    public ResponseEntity<List<Esercizio.Feedback>> getFeedback(
+        @PathVariable String id){
 
         return ResponseEntity.ok(
                 therapyService.getFeedback(id)

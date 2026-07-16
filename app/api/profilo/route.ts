@@ -28,9 +28,13 @@ async function getSession() {
 
   try {
     const userData = JSON.parse(userCookie.value);
-    // MODIFICA QUI: L'oggetto utente nel token ha solo il campo "id" unificato da MongoDB
-    const id = userData.utente.id; 
-    return { id, ruolo: userData.ruolo };
+    const ruolo = userData.ruolo;
+
+    return {
+      mongoId: userData.utente?.id,   // sempre l'id Mongo reale
+      cf: userData.utente?.cf,        // solo per i pazienti
+      ruolo,
+    };
   } catch {
     return null;
   }
@@ -39,13 +43,14 @@ async function getSession() {
 export async function GET() {
   try {
     const session = await getSession();
-    
     if (!session) {
       return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
     }
 
-    // Chiama l'UserController tramite il Gateway (es. /users/logopedista/12345)
-    const utente = await apiGet<any>(`${SERVICES.USER}/${session.ruolo}/${session.id}`);
+    // GET: il backend cerca il paziente per CF, il logopedista per id Mongo
+    const lookupId = session.ruolo === 'paziente' ? session.cf : session.mongoId;
+
+    const utente = await apiGet<any>(`${SERVICES.USER}/${session.ruolo}/${lookupId}`);
 
     return NextResponse.json({
       nome: utente.nome,
@@ -59,17 +64,9 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error(error);
-
     return NextResponse.json(
-      {
-        message: error.message,
-        status: error.status,
-        response: error.response,
-        stack: error.stack,
-      },
-      {
-        status: error.status ?? 500,
-      }
+      { message: error.message, status: error.status, response: error.response, stack: error.stack },
+      { status: error.status ?? 500 }
     );
   }
 }
@@ -77,18 +74,15 @@ export async function GET() {
 export async function PUT(req: Request) {
   try {
     const session = await getSession();
-    
     if (!session) {
       return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
     }
 
     const body = await req.json();
-    
-    // Il backend Java nel tuo UpdateUserRequest accetta attualmente solo nome, cognome, email
     const { nome, cognome, email, dataNascita, numTelefono } = body;
 
-    // Invia i dati al microservizio
-    await apiPut(`${SERVICES.USER}/${session.ruolo}/${session.id}`, {
+    // PUT: sia updateLogopedista che updatePaziente cercano per id Mongo reale
+    await apiPut(`${SERVICES.USER}/${session.ruolo}/${session.mongoId}`, {
       nome,
       cognome,
       email,

@@ -122,20 +122,23 @@ export default function ExerciseDetailPage() {
    * @param status - Il nuovo stato da impostare
    */
   const handleUpdateStatus = async (status: string) => {
-    // Se l'esercizio o l'id non sono disponibili, non procedere
-    if (!exercise || !id) return;
-    
-    // Attiva l'indicatore di aggiornamento in corso
-    setUpdating(true);
-    try {
-      // Chiamata PATCH all'API per aggiornare lo stato
-      const response = await fetch(`/api/esercizi/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ statoCompletamento: status }),
-      });
+  if (!exercise || !id) return;
+  
+  setUpdating(true);
+  try {
+    const payload: any = { statoCompletamento: status };
+    // Se l'esercizio viene completato, imposta di default 10 minuti di durata
+    if (status === 'completato') {
+      payload.durata = 10;
+    }
+
+    const response = await fetch(`/api/esercizi/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
 
       // Se la risposta non è OK, lancia un errore
       if (!response.ok) {
@@ -312,7 +315,7 @@ export default function ExerciseDetailPage() {
           )}
 
           {/* Banner di conferma: mostrato quando l'esercizio è già completato */}
-          {exercise.statoCompletamento === 'completato' && (
+          {exercise.statoCompletamento === 'COMPLETATO' && (
             <div className="flex items-center justify-center gap-3 px-6 py-4 bg-green-50 text-green-700 rounded-2xl font-bold uppercase text-sm border-2 border-green-200">
               <CheckCircleIcon className="w-6 h-6" />
               Esercizio Completato

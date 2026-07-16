@@ -118,10 +118,15 @@ public class TherapyService {
 
         Esercizio.Feedback feedback = new Esercizio.Feedback();
 
+        feedback.setId(java.util.UUID.randomUUID().toString());
         feedback.setMessaggio(request.getMessaggio());
         feedback.setData(new Date());
 
-        esercizio.setFeedback(feedback);
+        if (esercizio.getFeedbacks() == null) {
+            esercizio.setFeedbacks(new java.util.ArrayList<>());
+        }
+        esercizio.getFeedbacks().add(feedback);
+
         esercizio.setStatoCompletamento("COMPLETATO");
 
         repository.save(esercizio);
@@ -130,13 +135,13 @@ public class TherapyService {
 
     }
 
-    public Esercizio.Feedback getFeedback(String id){
+    public List<Esercizio.Feedback> getFeedback(String id){
 
         Esercizio esercizio = repository.findById(id)
                 .orElseThrow(() ->
                         new ExerciseNotFoundException("Esercizio non trovato"));
 
-        return esercizio.getFeedback();
+        return esercizio.getFeedbacks() != null ? esercizio.getFeedbacks() : new java.util.ArrayList<>();
 
     }
 

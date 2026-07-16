@@ -4,6 +4,7 @@ import it.logspot.therapyservice.entity.Esercizio;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ExerciseResponse {
@@ -22,6 +23,6 @@ public class ExerciseResponse {
 
     private String paziente;
 
-    private Esercizio.Feedback feedback;
+    private List<Esercizio.Feedback> feedbacks;
 
 }

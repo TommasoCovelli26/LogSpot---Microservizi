@@ -3,10 +3,10 @@ package it.logspot.therapyservice.entity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Document(collection = "esercizios")
@@ -27,11 +27,17 @@ public class Esercizio {
 
     private String paziente;
 
-    private Feedback feedback;
+    private List<Feedback> feedbacks = new ArrayList<>();
 
     @Data
     public static class Feedback {
+
+        private String id;
+
         private String messaggio;
+
         private Date data;
+
     }
+
 }

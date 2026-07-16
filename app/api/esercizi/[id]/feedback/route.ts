@@ -8,23 +8,20 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    // Il TerapiaController espone l'oggetto Feedback se esiste
-    const feedback = await apiGet<any>(`${SERVICES.THERAPY}/esercizi/${id}/feedback`).catch(() => null);
+    // Ora il TerapiaController espone direttamente un array di Feedback
+    const feedbacks = await apiGet<any[]>(`${SERVICES.THERAPY}/esercizi/${id}/feedback`).catch(() => []);
 
-    if (!feedback || !feedback.messaggio) {
-      return NextResponse.json([]);
-    }
+    const formatted = (feedbacks || []).map((fb: any) => ({
+      cod: fb.id || `${id}-${fb.data}`,
+      messaggio: fb.messaggio,
+      data: fb.data || new Date().toISOString(),
+      id_esercizio: id,
+    }));
 
-    // Formattiamo il dato come se lo aspetta il frontend
-    const formattedFeedback = [{
-      cod: feedback.id || Date.now(),
-      messaggio: feedback.messaggio,
-      data: feedback.data || new Date().toISOString(),
-      id_paziente: feedback.pazienteId || '', 
-      id_esercizio: Number(id),
-    }];
+    // Più recenti prima
+    formatted.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
-    return NextResponse.json(formattedFeedback);
+    return NextResponse.json(formatted);
   } catch (error) {
     return NextResponse.json({ error: 'Errore nel recupero dei feedback' }, { status: 500 });
   }
@@ -37,23 +34,25 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     if (!body.messaggio || !body.messaggio.trim()) {
       return NextResponse.json({ error: 'Il messaggio è obbligatorio' }, { status: 400 });
     }
 
-    // Chiamiamo il TerapiaService passando l'oggetto FeedbackRequest
+    // Il backend restituisce l'esercizio aggiornato, con la lista feedbacks aggiornata
     const updatedExercise = await apiPost<any>(`${SERVICES.THERAPY}/esercizi/${id}/feedback`, {
-       messaggio: body.messaggio.trim()
+      messaggio: body.messaggio.trim()
     });
 
-    const fb = updatedExercise.feedback;
+    const feedbacksList = updatedExercise.feedbacks || [];
+    // L'ultimo elemento della lista è quello appena aggiunto
+    const fb = feedbacksList[feedbacksList.length - 1];
+
     const newFeedback = {
       cod: fb?.id || Date.now(),
       messaggio: fb?.messaggio || body.messaggio.trim(),
       data: fb?.data || new Date().toISOString(),
-      id_paziente: updatedExercise.pazienteId || '',
-      id_esercizio: Number(id),
+      id_esercizio: id,
     };
 
     return NextResponse.json(newFeedback, { status: 201 });

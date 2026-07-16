@@ -56,18 +56,17 @@ export default function FeedbackPage() {
 
     // Parsing dei dati utente dalla sessione
     const utenteObj = JSON.parse(sessione);
-    // Recupero della P.IVA del logopedista dal localStorage
-    const pIva = utenteObj.codice;
+    const logopedistaId = utenteObj.id;
 
     /**
      * Funzione asincrona per caricare i feedback dall'API.
-     * Chiama /api/feedback passando la P.IVA come parametro query.
+     * Chiama /api/feedback passando l'ID del logopedista come parametro query.
      */
     const loadFeedbacks = async () => {
       setIsLoading(true);
       try {
-        // Chiamata all'API dei feedback con la P.IVA del logopedista
-        const response = await fetch(`/api/feedback?pIva=${encodeURIComponent(pIva)}`);
+        // Chiamata all'API dei feedback con l'ID del logopedista
+        const response = await fetch(`/api/feedback?pIva=${encodeURIComponent(logopedistaId)}`);
         // Verifica che la risposta sia ok
         if (!response.ok) {
           throw new Error('Errore nel caricamento dei feedback');

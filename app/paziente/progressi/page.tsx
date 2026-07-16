@@ -67,7 +67,7 @@ export default function ProgressiPazientePage() {
   // Numero totale di esercizi
   const total = exercises.length;
   // Filtra solo gli esercizi completati
-  const completed = exercises.filter(ex => ex.statoCompletamento === 'completato');
+  const completed = exercises.filter(ex => ex.statoCompletamento === 'COMPLETATO');
   // Calcola la durata media delle sessioni completate (in minuti)
   const avgDuration = completed.length > 0 
     ? (completed.reduce((acc, curr) => acc + (curr.durata || 0), 0) / completed.length).toFixed(1) 
@@ -88,7 +88,7 @@ export default function ProgressiPazientePage() {
         <div className="bg-blue-50 p-10 rounded-3xl border-2 border-blue-200 shadow-sm text-center">
           <p className="text-2xl text-blue-700 font-bold uppercase tracking-wider">Esercizi Fatti</p>
           {/* Numero grande: completati / totale */}
-          <p className="text-6xl font-black text-blue-900 mt-4 text-">
+          <p className="text-6xl font-black text-blue-900 mt-4">
             {completed.length} <span className="text-3xl text-blue-400">/ {total}</span>
           </p>
         </div>

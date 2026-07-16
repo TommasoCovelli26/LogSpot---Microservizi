@@ -13,19 +13,29 @@ export async function GET(req: Request) {
   // Modalità 1: Vista Logopedista (recupera gli esercizi assegnati da un logopedista specifico a un paziente)
   if (cf && pIva) {
     try {
-      // Usiamo l'endpoint del therapy service per recuperare gli esercizi del paziente
       const esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
-      
+
       // Filtriamo lato frontend per assicurarci che siano quelli assegnati da questo specifico logopedista
-      const mapped = esercizi
-        .filter(e => (e.logopedista || e.logopedistaId || e.id_logopedista) === pIva)
-        .map((exercise) => ({
-          id: exercise.id,
-          titolo: exercise.titolo || 'Esercizio',
-          dataAssegnazione: exercise.dataAssegnazione || new Date().toISOString(),
-          statoCompletamento: exercise.statoCompletamento ?? null,
-          esito: exercise.esito ?? null,
-        }));
+      const filtered = esercizi
+        .filter(e => (e.logopedista || e.logopedistaId || e.id_logopedista) === pIva);
+
+      // Arricchisce ogni esercizio col titolo reale recuperato dal catalog-service
+      const mapped = await Promise.all(
+        filtered.map(async (exercise) => {
+          const activityId = exercise.attivita || exercise.attivitaId || exercise.id_attivita;
+          let activityDetails: any = {};
+          if (activityId) {
+            activityDetails = await apiGet<any>(`${SERVICES.CATALOG}/${activityId}`).catch(() => ({}));
+          }
+          return {
+            id: exercise.id,
+            titolo: activityDetails.titolo || 'Esercizio',
+            dataAssegnazione: exercise.dataAssegnazione || new Date().toISOString(),
+            statoCompletamento: exercise.statoCompletamento ?? null,
+            esito: exercise.esito ?? null,
+          };
+        })
+      );
 
       return NextResponse.json(mapped);
     } catch (error) {
@@ -41,27 +51,36 @@ export async function GET(req: Request) {
   if (cf) {
     try {
       const esercizi = await apiGet<any[]>(`${SERVICES.THERAPY}/pazienti/${cf}/esercizi`);
-      
-      let mapped = esercizi.map(e => ({
-        id: e.id,
-        titolo: e.titolo || 'Esercizio',
-        dataAssegnazione: e.dataAssegnazione,
-        statoCompletamento: e.statoCompletamento,
-        esito: e.esito,
-        id_attivita: e.attivita || e.attivitaId || e.id_attivita
-      }));
+
+      let mapped = await Promise.all(
+        esercizi.map(async (e) => {
+          const activityId = e.attivita || e.attivitaId || e.id_attivita;
+          let activityDetails: any = {};
+          if (activityId) {
+            activityDetails = await apiGet<any>(`${SERVICES.CATALOG}/${activityId}`).catch(() => ({}));
+          }
+          return {
+            id: e.id,
+            titolo: activityDetails.titolo || 'Esercizio',
+            dataAssegnazione: e.dataAssegnazione,
+            statoCompletamento: e.statoCompletamento,
+            esito: e.esito,
+            id_attivita: activityId
+          };
+        })
+      );
 
       // Applica i filtri di ricerca testuale
       const trimmedQuery = query.trim().toLowerCase();
       if (trimmedQuery) {
         mapped = mapped.filter(e => e.titolo.toLowerCase().includes(trimmedQuery));
       }
-      
+
       // Applica i filtri di stato
       if (filter === 'completati') {
-        mapped = mapped.filter(e => e.statoCompletamento === 'completato');
+        mapped = mapped.filter(e => e.statoCompletamento === 'COMPLETATO');
       } else if (filter === 'in-corso') {
-        mapped = mapped.filter(e => !e.statoCompletamento || e.statoCompletamento === 'in-corso');
+        mapped = mapped.filter(e => e.statoCompletamento !== 'COMPLETATO');
       }
 
       return NextResponse.json(mapped);
