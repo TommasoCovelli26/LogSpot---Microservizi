@@ -44,17 +44,17 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy su Azure Container Apps
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          containerAppName: ${{ env.CONTAINER_APP_NAME }}
-          imageToDeploy: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-      - name: Imposta variabili d'ambiente e segreti
+      - name: Deploy su Azure Container Apps (via CLI diretta)
         uses: azure/CLI@v2
         with:
           inlineScript: |
+            az containerapp registry set \
+              --name ${{ env.CONTAINER_APP_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --server ${{ env.REGISTRY_NAME }}.azurecr.io \
+              --username ${{ secrets.ACR_USERNAME }} \
+              --password ${{ secrets.ACR_PASSWORD }}
+
             az containerapp secret set \
               --name ${{ env.CONTAINER_APP_NAME }} \
               --resource-group ${{ env.RESOURCE_GROUP }} \
@@ -65,6 +65,7 @@ jobs:
             az containerapp update \
               --name ${{ env.CONTAINER_APP_NAME }} \
               --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
               --set-env-vars \
                 EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server.internal.agreeabledune-85eaf0e5.francecentral.azurecontainerapps.io/eureka/ \
                 SPRING_DATA_MONGODB_URI=secretref:mongo-uri \
