@@ -196,8 +196,8 @@ Per evitare l'accoppiamento stretto tra microservizi (es. il Therapy Service non
 
 | Layer | Tecnologie Utilizzate | Motivo della Scelta |
 |---|---|---|
-| **Frontend** | React, Next.js (v14), Tailwind CSS | Rendering ibrido (SSR/CSR), API Routes interne per proxy delle chiamate, UX fluida. |
-| **Backend Core** | Java 21, Spring Boot 3.2 | Robustezza enterprise, tipizzazione forte, ecosistema maturo. |
+| **Frontend** | React, Next.js (v16), Tailwind CSS, Node.js (v20) | Rendering ibrido (SSR/CSR), API Routes interne per proxy delle chiamate, UX fluida. |
+| **Backend Core** | Java 17, Spring Boot 3.5.4 | Robustezza enterprise, tipizzazione forte, ecosistema maturo. |
 | **Routing & Cloud** | Spring Cloud Gateway, Netflix Eureka | Risoluzione dinamica dei servizi, Load Balancing nativo, sicurezza perimetrale. |
 | **Database** | MongoDB Atlas (NoSQL) | Flessibilità per strutture JSON-like, cloud-hosted per minimizzare il carico locale. |
 | **Message Broker** | Microsoft Azure Service Bus (Standard Tier) | Comunicazione Publish/Subscribe tramite Topic, alta affidabilità di consegna (TTL). |
