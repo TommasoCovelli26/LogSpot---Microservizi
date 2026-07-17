@@ -1,5 +1,6 @@
 package it.logspot.therapyservice.config;
 
+import com.azure.core.amqp.AmqpTransportType;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ public class ServiceBusConfig {
     @Bean
     public ServiceBusClientBuilder serviceBusClientBuilder() {
         return new ServiceBusClientBuilder()
-                .connectionString(connectionString);
+                .connectionString(connectionString)
+                .transportType(AmqpTransportType.AMQP_WEB_SOCKETS);
     }
 }
