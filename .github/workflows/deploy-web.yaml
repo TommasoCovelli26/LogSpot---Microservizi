@@ -1,0 +1,40 @@
+name: Deploy Web Frontend to ACA
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**' 
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login ad Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: logspotregistry.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build e Push
+        run: |
+          cd app
+          docker build -t logspotregistry.azurecr.io/logspot-web:${{ github.sha }} .
+          docker push logspotregistry.azurecr.io/logspot-web:${{ github.sha }}
+
+      - name: Login ad Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy su Azure
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          resourceGroup: logspot-rg
+          containerAppName: logspot-web
+          imageToDeploy: logspotregistry.azurecr.io/logspot-web:${{ github.sha }}
