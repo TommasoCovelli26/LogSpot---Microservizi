@@ -3,7 +3,7 @@
 > **Sistema Informativo Distribuito a Microservizi**
 > *Progettato per la gestione clinica, l'assegnazione di terapie asincrone e il monitoraggio dei pazienti, basato su un'architettura Event-Driven sicura e scalabile.*
 
-![Java](https://img.shields.io/badge/Java-21-orange) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green) ![Next.js](https://img.shields.io/badge/Next.js-14-black) ![Azure](https://img.shields.io/badge/Azure-Service_Bus-blue) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.4-green) ![Next.js](https://img.shields.io/badge/Next.js-16.1.5-black) ![Node.js](https://img.shields.io/badge/Node.js-20-43853D) ![Azure](https://img.shields.io/badge/Azure-Service_Bus-blue) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
 ---
 
@@ -15,9 +15,10 @@
 5. [Comunicazione Event-Driven (Azure Service Bus)](#5-comunicazione-event-driven-azure-service-bus)
 6. [Stack Tecnologico](#6-stack-tecnologico)
 7. [Funzionalità Operative del Sistema](#7-funzionalità-operative-del-sistema)
-8. [Guida all'Installazione (Local e Cloud Setup)](#9-guida-allinstallazione-local--cloud-setup)
-9. [Risoluzione Problemi (Troubleshooting)](#10-risoluzione-problemi-troubleshooting)
-10. [File di Setup](#11-file-di-setup)
+8. [Test d'Uso](#8-test-duso)
+9. [Guida all'Installazione (Local e Cloud Setup)](#9-guida-allinstallazione-local--cloud-setup)
+10. [Risoluzione Problemi (Troubleshooting)](#10-risoluzione-problemi-troubleshooting)
+11. [File di Setup](#11-file-di-setup)
 
 ---
 
@@ -42,7 +43,7 @@ Trattando dati sensibili legati alla salute (esercizi clinici, feedback terapeut
 
 L'infrastruttura è progettata seguendo i principi delle architetture distribuite. Il traffico in ingresso viene filtrato, smistato dal Gateway, e orchestrato tramite un Service Registry (Eureka) per la risoluzione dinamica degli indirizzi IP dei container.
 
-![alt text](image.png)
+![Architettura Cloud-Native e API Gateway](docs/images/image.png)
 
 **Componenti Core dell'Infrastruttura:**
 1. **Frontend Client:** Applicazione Next.js (Server Actions & Route Handlers).
@@ -181,7 +182,7 @@ La logica di business è frammentata in tre domini applicativi, ciascuno con res
 
 Per evitare l'accoppiamento stretto tra microservizi (es. il Therapy Service non deve bloccarsi se l'User Service cade) ed evitare richieste HTTP sincrone bloccanti, LogSpot utilizza **Microsoft Azure Service Bus** con pattern **Pub/Sub (Topic & Subscriptions)**.
 
-![alt text](image-2.png)
+![Flusso Asincrono con Azure Service Bus](docs/images/image-2.png)
 
 **Esempio di flusso (Eliminazione a Cascata):**
 1. Il Logopedista elimina un Paziente.
@@ -256,12 +257,59 @@ L'intero frontend è sviluppato secondo il paradigma **Mobile-First / Responsive
 
 ---
 
-## 8. Guida all'Installazione (Local & Cloud Setup)
+## 8. Test d'Uso
+
+Questa sezione documenta le funzionalità operative consentite `"Happy Path"` per ciascuna tipologia di utente, verificando la corretta applicazione delle funzionalità dell'applicativo.
+
+### 8.1 Funzionalità Comuni
+
+* **Homepage:** Pagina di benvenuto dell'applicativo che permette la registrazione e l'accesso da parte degli utenti.
+![Homepage](docs/images/Homepage.jpeg)
+* **Login:** Accesso al sistema inserendo email e password. Il sistema verifica le credenziali per l'accesso a LogSpot
+![Login](docs/images/Login.jpeg)
+* **Registrazione:** Registrazione di un nuovo utente sulla piattaforma, con richiesta di campi obbligatori. Il form di registrazione è comune ma cambia solo un campo tra il logopedista e il paziente (Partita IVA per il logopedista e Codice Fiscale per il paziente).
+![Registrazione Logopedista](docs/images/Registrazione_Logopedista.jpeg)
+![Registrazione Paziente](docs/images/registrazione_paziente.jpeg)
+* **Logout:** Disconnessione dell'account utente dalla piattaforma, che invalida l'autenticazione.
+![Logout](docs/images/logout.PNG)
+* **Profilo Utente:** Sezione dedicata alla modifica dei dati o all'eliminazione definitiva dell'account.
+![Profilo Utente](docs/images/profilo.jpeg)
+
+### 8.2 Ruolo: Logopedista
+
+Il logopedista è il ruolo con più funzionalità dell'applicativo.
+* **Dashboard:** Dashboard interattiva che consente di monitorare e raggiungere qualsiasi sezione dell'applicativo o qualsiasi attività assegnata a un suo paziente.
+![Dashboard Logopedista](docs/images/dashboard_logopedista.jpeg)
+* **Pazienti:** Sezione dedicata all'abbinamento, eliminazione e visualizzazione del profilo dei pazienti registrati su LogSpot. Inoltre presenta una sezione dedicata alla visualizzazione dei feedback, lasciati dai pazienti abbinati, di tutte le attività create o assegnate.
+![Pazienti](docs/images/lista_pazienti.jpeg)
+![Dettaglio Paziente](docs/images/dettaglio_paziente.jpeg)
+![Feedback Paziente](docs/images/feedback_logopedista.jpeg)
+* **I Miei Materiali:** Sezione dedicata alla creazione, lettura, modifica ed eliminazione di un'attività (`CRUD`). Comprende l'assegnazione dell'attività a un paziente e la possibilità di lasciare un commento testuale all'attività (solo se al momento della creazione si sceglie l'opzione `PUBBLICA`.)
+![I Miei Materiali](docs/images/imieimateriali.jpeg)
+![Dettaglio Attività Logopedista](docs/images/Dettaglio_attivita.jpeg)
+![Commenti](docs/images/commenti.jpeg)
+* **Ricerca Materiali:** Sezione dedicata all'attività della community logopedica. Permette la lettura e l'assegnazione dell'attività di un qualsiasi utente LogSpot che abbia scelto di rendere pubblica la sua attività.
+![Ricerca Materiali](docs/images/ricerca_materiali.jpeg)
+
+### 8.3 Ruolo: Paziente
+
+Il paziente è il ruolo con meno funzionalità perché è mirato a un'utenza prevalentemente adolescenziale e anziana.
+* **Dashboard:** Dashboard interattiva che consente di monitorare e raggiungere qualsiasi sezione dell'applicativo o qualsiasi attività assegnata dal proprio logopedista associato.
+![Dashboard Paziente](docs/images/dashboard_paziente.jpeg)
+* **I Miei Esercizi:** Sezione dedicata alla raccolta e divisione delle attività logopediche assegnate e create dal proprio logopedista. Inoltre nel dettaglio dell'attività è presente la possibilità di segnare l'attività come "`completata`" o "`in corso`" e di poter lasciare un feedback di apprezzamento dell'attività.
+![I Miei Esercizi](docs/images/imieiesercizi.jpeg)
+![Dettaglio Attività Paziente](docs/images/Dettaglio_attivita_paziente.jpeg)
+![Feedback Paziente](docs/images/feedback_paziente.jpeg)
+* **I Miei Progressi:** Sezione dedicata allo storico delle attività completate per il monitoraggio della terapia.
+![I Miei Progressi](docs/images/imieiprogressi.jpeg)
+
+---
+## 9. Guida all'Installazione (Local & Cloud Setup)
 
 **Prerequisiti di Sistema:** **Docker** e **Docker Compose** installati e in esecuzione sul sistema host.
-* **Java 21** e **Node.js 20+** (necessari solo per l'avvio e lo sviluppo in modalità manuale senza Docker).
+* **Java 17** e **Node.js 20+** (necessari solo per l'avvio e lo sviluppo in modalità manuale senza Docker).
 
-### 8.1 Prerequisiti Cloud (MongoDB Atlas e Azure)
+### 9.1 Prerequisiti Cloud (MongoDB Atlas e Azure)
 Essendo LogSpot un'applicazione *Cloud-Native*, i servizi di persistenza e messaggistica non girano in locale, ma si appoggiano a infrastrutture cloud. Prima di avviare il codice, è necessario preparare gli ambienti esterni:
 
 1. **MongoDB Atlas (Database):**
@@ -271,7 +319,7 @@ Essendo LogSpot un'applicazione *Cloud-Native*, i servizi di persistenza e messa
    * Verificare che la risorsa su Azure sia configurata con il piano tariffario **Standard** (il piano Basic non supporta i *Topic* necessari per l'eliminazione a cascata).
    * Generare e copiare la *Stringa di connessione primaria* (Primary Connection String).
 
-### 8.2 Configurazione delle Variabili d'Ambiente (Security)
+### 9.2 Configurazione delle Variabili d'Ambiente (Security)
 Per evitare il rischio di *Secret Sprawl* (chiavi caricate per errore su GitHub), le credenziali di Azure vengono iniettate dinamicamente nei container all'avvio tramite variabili d'ambiente.
 
 1. Creare un file vuoto chiamato esattamente **`.env`** nella directory principale (root) del progetto (allo stesso livello del file `docker-compose.yml`).
@@ -281,7 +329,7 @@ Per evitare il rischio di *Secret Sprawl* (chiavi caricate per errore su GitHub)
    ```
 *(Nota: Il file `.env` è già ignorato da Git grazie alle regole configurate nel `.gitignore` del progetto).*
 
-### 8.3 Avvio dell'Ecosistema tramite Docker Compose
+### 9.3 Avvio dell'Ecosistema tramite Docker Compose
 L'intera architettura (Frontend, Gateway, Service Registry e i 3 Microservizi) è orchestrata da un singolo file `docker-compose.yml` che ne gestisce le dipendenze strutturali.
 
 Aprire il terminale nella root del progetto e lanciare:
@@ -296,7 +344,7 @@ Data la natura asincrona dei microservizi, il sistema necessita di circa **1-2 m
 3. `gateway-service` interroga Eureka, mappa le rotte e si mette in ascolto sulla porta 8080.
 4. Il frontend `logspot-web` si avvia e si collega al Gateway.
 
-### 8.4 Mappatura delle Porte e Punti di Accesso
+### 9.4 Mappatura delle Porte e Punti di Accesso
 Una volta che i container sono nello stato "Running", l'infrastruttura espone i seguenti punti di accesso sul `localhost` dell'host:
 
 | Servizio | URL Accesso | Funzione / Ruolo |
@@ -305,7 +353,7 @@ Una volta che i container sono nello stato "Running", l'infrastruttura espone i 
 | **Eureka Dashboard** | `http://localhost:8761` | Console di monitoraggio. Mostra lo stato *UP* dei microservizi registrati. |
 | **API Gateway** | `http://localhost:8080` | Entrypoint delle API. *(Normalmente non richiamato direttamente dall'utente, ma dal client HTTP del frontend)*. |
 
-### 8.5 Creazione Credenziali e Test Iniziale
+### 9.5 Creazione Credenziali e Test Iniziale
 A differenza dei classici gestionali, LogSpot non fornisce un utente "admin" pre-caricato. Per iniziare a testare la piattaforma:
 
 1. Navigare su `http://localhost:3000` e cliccare su **"Registrati"** (o navigare su `/registrazione`).
@@ -314,7 +362,7 @@ A differenza dei classici gestionali, LogSpot non fornisce un utente "admin" pre
 4. Effettuare il **Login**. Il JWT verrà generato dallo `user-service` e iniettato nei cookie HTTP-Only.
 5. Dal pannello di controllo, sarà possibile creare nuovi materiali (salvati sul `catalog-service`) e registrare nuovi pazienti per testare l'assegnazione delle terapie e il flusso asincrono tramite Service Bus.
 
-### 8.6 Sviluppo e Avvio Manuale (Hot Reload)
+### 9.6 Sviluppo e Avvio Manuale (Hot Reload)
 Se si desidera sviluppare e vedere le modifiche in tempo reale senza dover ricostruire i container Docker:
 1. Spegnere i container in esecuzione: `docker-compose down`
 2. **Frontend:** Aprire il terminale nella root, eseguire `npm install` e poi `npm run dev`.
@@ -325,7 +373,7 @@ Se si desidera sviluppare e vedere le modifiche in tempo reale senza dover ricos
 
 ---
 
-## 9. Risoluzione Problemi (Troubleshooting)
+## 10. Risoluzione Problemi (Troubleshooting)
 
 In caso di difficoltà durante l'avvio o l'utilizzo della piattaforma in ambiente locale, consultare la seguente tabella:
 
@@ -338,7 +386,7 @@ In caso di difficoltà durante l'avvio o l'utilizzo della piattaforma in ambient
 
 ---
 
-## 10. File di Setup
+## 11. File di Setup
 
 In caso si voglia visionare o seguire step by step le procedure di installazione sui vari sistemi operativi (*Windows*, *Linux*, *MacOs*), si può trovare la relativa guida nei corrispettivi file situati nella root del progetto:
 
