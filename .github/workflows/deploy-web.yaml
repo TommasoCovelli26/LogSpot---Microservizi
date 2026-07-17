@@ -23,7 +23,6 @@ jobs:
 
       - name: Build e Push
         run: |
-          cd app
           docker build -t logspotregistry.azurecr.io/logspot-web:${{ github.sha }} .
           docker push logspotregistry.azurecr.io/logspot-web:${{ github.sha }}
 
