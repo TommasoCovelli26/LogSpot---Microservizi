@@ -15,6 +15,10 @@ public class CreateAttivitaRequest {
     @NotBlank
     private String descrizione;
 
+    private String istruzioni;
+
+    private Integer fasciaEta;
+
     @NotNull
     private Boolean accessibilita;
 

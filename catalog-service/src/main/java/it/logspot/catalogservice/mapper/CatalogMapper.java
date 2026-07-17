@@ -15,6 +15,8 @@ public class CatalogMapper {
 
         attivita.setTitolo(request.getTitolo());
         attivita.setDescrizione(request.getDescrizione());
+        attivita.setIstruzioni(request.getIstruzioni());
+        attivita.setFasciaEta(request.getFasciaEta() != null ? request.getFasciaEta() : 0);
         attivita.setPatologie(request.getPatologie());
         attivita.setImmagini(request.getImmagini());
         attivita.setAccessibilita(request.getAccessibilita());
@@ -28,6 +30,8 @@ public class CatalogMapper {
 
         attivita.setTitolo(request.getTitolo());
         attivita.setDescrizione(request.getDescrizione());
+        attivita.setIstruzioni(request.getIstruzioni());
+        attivita.setFasciaEta(request.getFasciaEta() != null ? request.getFasciaEta() : 0);
         attivita.setPatologie(request.getPatologie());
         attivita.setImmagini(request.getImmagini());
         attivita.setAccessibilita(request.getAccessibilita());
@@ -41,6 +45,8 @@ public class CatalogMapper {
         response.setId(attivita.getId());
         response.setTitolo(attivita.getTitolo());
         response.setDescrizione(attivita.getDescrizione());
+        response.setIstruzioni(attivita.getIstruzioni());
+        response.setFasciaEta(attivita.getFasciaEta());
         response.setPatologie(attivita.getPatologie());
         response.setImmagini(attivita.getImmagini());
         response.setAccessibilita(attivita.getAccessibilita());

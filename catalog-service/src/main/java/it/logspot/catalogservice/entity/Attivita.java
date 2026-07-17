@@ -22,6 +22,10 @@ public class Attivita {
 
     private String descrizione;
 
+    private String istruzioni;
+
+    private Integer fasciaEta = 0;
+
     private List<String> patologie = new ArrayList<>();
 
     private List<String> immagini = new ArrayList<>();

@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'gateway-service/**' # Si attiva solo se ci sono modifiche nella cartella del gateway
+      - 'gateway-service/**'
+  workflow_dispatch:
 
 env:
   REGISTRY_NAME: logspotregistry

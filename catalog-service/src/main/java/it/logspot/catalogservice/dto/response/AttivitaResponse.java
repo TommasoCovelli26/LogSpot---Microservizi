@@ -15,6 +15,10 @@ public class AttivitaResponse {
 
     private String descrizione;
 
+    private String istruzioni;
+
+    private Integer fasciaEta;
+
     private List<String> patologie;
 
     private List<String> immagini;
