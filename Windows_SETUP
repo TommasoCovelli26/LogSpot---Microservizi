@@ -13,7 +13,7 @@ Il modo più semplice, pulito e affidabile per eseguire l'intera infrastruttura 
 
 ### 1.2 Installare le Dipendenze (Opzionale, solo per avvio manuale)
 Se desideri avviare i servizi di LogSpot senza Docker (per sviluppare o testare senza container), avrai bisogno di installare:
-* **Java 21:** Scarica e installa l'JDK 21 (assicurandoti di aggiungere Java alle variabili d'ambiente `PATH`).
+* **Java 17:** Scarica e installa JDK 17 (assicurandoti di aggiungere Java alle variabili d'ambiente `PATH`).
 * **Node.js v20:** Scarica e installa la versione LTS da nodejs.org.
 
 ---
