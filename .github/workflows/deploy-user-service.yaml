@@ -67,6 +67,6 @@ jobs:
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
               --set-env-vars \
-                EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server.internal.agreeabledune-85eaf0e5.francecentral.azurecontainerapps.io/eureka/ \
+                EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=https://eureka-server.internal.agreeabledune-85eaf0e5.francecentral.azurecontainerapps.io/eureka/ \
                 SPRING_DATA_MONGODB_URI=secretref:mongo-uri \
                 AZURE_SERVICEBUS_CONNECTION_STRING=secretref:servicebus-conn
