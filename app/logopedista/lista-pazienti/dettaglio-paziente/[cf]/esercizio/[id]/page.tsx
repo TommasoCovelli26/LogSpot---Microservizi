@@ -144,7 +144,7 @@ export default async function AssignedExercisePage({
               </div>
 
               <div className="pt-6 border-t border-gray-100">
-                 <UnassignButton exerciseId={Number(exercise.id || id)} patientCf={cf} />
+                 <UnassignButton exerciseId={String(exercise.id || id)} patientCf={cf} />
               </div>
 
           </div>

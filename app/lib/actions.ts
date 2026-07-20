@@ -180,7 +180,7 @@ export async function updateActivity(id: string, formData: any) {
   }
 }
 
-export async function removeAssignedExercise(exerciseId: number, patientCf: string) {
+export async function removeAssignedExercise(exerciseId: string, patientCf: string) {
   try {
     await apiDelete(`${SERVICES.THERAPY}/esercizi/${exerciseId}`);
     revalidatePath(`/logopedista/lista-pazienti/dettaglio-paziente/${patientCf}`);

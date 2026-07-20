@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
  * @param exerciseId - ID dell'esercizio assegnato da rimuovere
  * @param patientCf - Codice fiscale del paziente
  */
-export default function UnassignButton({ exerciseId, patientCf }: { exerciseId: number, patientCf: string }) {
+export default function UnassignButton({ exerciseId, patientCf }: { exerciseId: string, patientCf: string }) {
   // Hook per la navigazione programmatica
   const router = useRouter();
 
