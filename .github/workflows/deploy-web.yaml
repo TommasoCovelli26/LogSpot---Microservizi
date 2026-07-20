@@ -1,16 +1,16 @@
-name: Deploy User Service to ACA
+name: Deploy Web Frontend to ACA
 
 on:
   push:
     branches: [main]
     paths:
-      - 'user-service/**'
+      - 'app/**'
   workflow_dispatch:
 
 env:
   REGISTRY_NAME: logspotregistry
-  IMAGE_NAME: logspotregistry.azurecr.io/user-service
-  CONTAINER_APP_NAME: user-service
+  IMAGE_NAME: logspotregistry.azurecr.io/logspot-web
+  CONTAINER_APP_NAME: logspot-web
   RESOURCE_GROUP: logspot-rg
 
 permissions:
@@ -33,7 +33,6 @@ jobs:
 
       - name: Build e Push dell'immagine Docker
         run: |
-          cd user-service
           docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
           docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
@@ -55,18 +54,9 @@ jobs:
               --username ${{ secrets.ACR_USERNAME }} \
               --password ${{ secrets.ACR_PASSWORD }}
 
-            az containerapp secret set \
-              --name ${{ env.CONTAINER_APP_NAME }} \
-              --resource-group ${{ env.RESOURCE_GROUP }} \
-              --secrets \
-                mongo-uri="${{ secrets.MONGODB_URI }}" \
-                servicebus-conn="${{ secrets.AZURE_SERVICEBUS_CONNECTION_STRING }}"
-
             az containerapp update \
               --name ${{ env.CONTAINER_APP_NAME }} \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
               --set-env-vars \
-                EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=https://eureka-server.internal.agreeabledune-85eaf0e5.francecentral.azurecontainerapps.io/eureka/ \
-                SPRING_DATA_MONGODB_URI=secretref:mongo-uri \
-                AZURE_SERVICEBUS_CONNECTION_STRING=secretref:servicebus-conn
+                GATEWAY_URL=https://gateway-service.internal.agreeabledune-85eaf0e5.francecentral.azurecontainerapps.io

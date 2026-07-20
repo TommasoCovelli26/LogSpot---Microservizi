@@ -2,8 +2,7 @@ name: Deploy Gateway Service to ACA
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'gateway-service/**'
   workflow_dispatch:
@@ -14,17 +13,21 @@ env:
   CONTAINER_APP_NAME: gateway-service
   RESOURCE_GROUP: logspot-rg
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del codice
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login ad Azure Container Registry
-        uses: azure/docker-login@v1
+        uses: docker/login-action@v3
         with:
-          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          registry: ${{ env.REGISTRY_NAME }}.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
@@ -34,14 +37,27 @@ jobs:
           docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
           docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Login ad Azure
-        uses: azure/login@v1
+      - name: Login ad Azure (OIDC)
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy su Azure Container Apps (Rilascio sicuro)
-        uses: azure/container-apps-deploy-action@v1
+      - name: Deploy su Azure Container Apps (via CLI diretta)
+        uses: azure/CLI@v2
         with:
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          containerAppName: ${{ env.CONTAINER_APP_NAME }}
-          imageToDeploy: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          inlineScript: |
+            az containerapp registry set \
+              --name ${{ env.CONTAINER_APP_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --server ${{ env.REGISTRY_NAME }}.azurecr.io \
+              --username ${{ secrets.ACR_USERNAME }} \
+              --password ${{ secrets.ACR_PASSWORD }}
+
+            az containerapp update \
+              --name ${{ env.CONTAINER_APP_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+              --set-env-vars \
+                EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=https://eureka-server.internal.agreeabledune-85eaf0e5.francecentral.azurecontainerapps.io/eureka/
